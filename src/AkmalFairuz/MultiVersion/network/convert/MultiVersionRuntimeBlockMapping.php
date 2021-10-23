@@ -58,7 +58,7 @@ class MultiVersionRuntimeBlockMapping{
         $legacyStateMap = [];
         $path = Loader::$resourcesPath . "vanilla/r12_to_current_block_map".self::PROTOCOL[$protocol].".bin";
         if(!is_file($path)) {
-            $path = Loader::$resourcesPath . "vanilla/r12_to_current_block_map_1_17_40.bin";
+            $path = Loader::$resourcesPath . "vanilla/r12_to_current_block_map_1_17_30.bin";
         }
         $legacyStateMapReader = new NetworkBinaryStream(file_get_contents($path));
         $nbtReader = new NetworkLittleEndianNBTStream();
