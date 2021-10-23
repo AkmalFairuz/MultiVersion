@@ -6,12 +6,12 @@ namespace AkmalFairuz\MultiVersion\network\translator;
 
 use AkmalFairuz\MultiVersion\network\ProtocolConstants;
 use pocketmine\nbt\NetworkLittleEndianNBTStream;
-use pocketmine\network\mcpe\protocol\StartGamePacket as A;
+use pocketmine\network\mcpe\protocol\StartGamePacket;
 use function count;
 
 class StartGamePacketTranslator {
 
-    public static function serialize(A $packet, int $protocol){
+    public static function serialize(StartGamePacket $packet, int $protocol){
         $packet->putEntityUniqueId($packet->entityUniqueId);
         $packet->putEntityRuntimeId($packet->entityRuntimeId);
         $packet->putVarInt($packet->playerGamemode);
@@ -92,8 +92,6 @@ class StartGamePacketTranslator {
 
         $packet->putString($packet->multiplayerCorrelationId);
         ($packet->buffer .= ($packet->enableNewInventorySystem ? "\x01" : "\x00"));
-        if(isset($packet->serverSoftwareVersion)){
-            $packet->putString($packet->serverSoftwareVersion);
-        }
+        $packet->putString($packet->serverSoftwareVersion);
     }
 }

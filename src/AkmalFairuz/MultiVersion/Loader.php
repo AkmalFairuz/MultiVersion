@@ -12,7 +12,15 @@ class Loader extends PluginBase{
 
     public static $resourcesPath;
 
+    private static $instance;
+
+    public static function getInstance() : self{
+        return self::$instance;
+    }
+
     public function onEnable(){
+        self::$instance = $this;
+
         foreach($this->getResources() as $k => $v) {
             $this->saveResource($k, true);
         }
