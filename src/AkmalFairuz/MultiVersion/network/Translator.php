@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AkmalFairuz\MultiVersion\network;
 
 use AkmalFairuz\MultiVersion\network\convert\MultiVersionRuntimeBlockMapping;
+use AkmalFairuz\MultiVersion\network\translator\CraftingDataPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\PlayerListPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\StartGamePacketTranslator;
 use pocketmine\network\mcpe\convert\RuntimeBlockMapping;
@@ -34,9 +35,7 @@ class Translator{
                 return $packet;
             case CraftingDataPacket::NETWORK_ID:
                 /** @var CraftingDataPacket $packet */
-                if($protocol < ProtocolConstants::BEDROCK_1_17_30){
-                    $packet->putVarInt(0); //material reducer recipe count
-                }
+                CraftingDataPacketTranslator::serialize($packet, $protocol);
                 return $packet;
             case PlayerListPacket::NETWORK_ID:
                 /** @var PlayerListPacket $packet */
