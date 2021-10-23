@@ -79,7 +79,9 @@ class EventListener implements Listener{
             return;
         }
         if($packet instanceof BatchPacket) {
-            $packet->decode();
+            if($packet->isEncoded){
+                $packet->decode();
+            }
 
             $newPacket = new BatchPacket();
             foreach($packet->getPackets() as $buf){
