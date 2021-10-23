@@ -35,7 +35,7 @@ class Translator{
         switch($pid) {
             case LoginPacket::NETWORK_ID:
                 /** @var LoginPacket $packet */
-                if($protocol >= ProtocolConstants::BEDROCK_1_17_30) {
+                if($protocol < ProtocolConstants::BEDROCK_1_17_30) {
                     $packet->clientData["SkinGeometryDataEngineVersion"] = base64_encode("1.17.30");
                 }
                 return $packet;

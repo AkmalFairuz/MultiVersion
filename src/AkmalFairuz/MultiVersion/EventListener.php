@@ -45,7 +45,7 @@ class EventListener implements Listener{
             $reflection = new \ReflectionClass($player);
             $prop = $reflection->getProperty("sessionAdapter");
             $prop->setAccessible(true);
-            $prop->setValue(new MultiVersionSessionAdapter($player->getServer(), $player, $packet->protocol));
+            $prop->setValue($player, new MultiVersionSessionAdapter($player->getServer(), $player, $packet->protocol));
 
             SessionManager::create($player, $packet->protocol);
 
