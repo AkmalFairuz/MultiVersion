@@ -11,13 +11,27 @@ use AkmalFairuz\MultiVersion\network\translator\StartGamePacketTranslator;
 use pocketmine\network\mcpe\convert\RuntimeBlockMapping;
 use pocketmine\network\mcpe\protocol\CraftingDataPacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
+use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\PlayerListPacket;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
 use pocketmine\network\mcpe\protocol\UpdateBlockPacket;
+use function base64_encode;
 
 class Translator{
 
     public static function fromClient(DataPacket $packet, int $protocol) : DataPacket{
+        if($packet->isEncoded) {
+            $packet->decode();
+        }
+        $pid = $packet::NETWORK_ID;
+        switch($pid) {
+            case LoginPacket::NETWORK_ID:
+                /** @var LoginPacket $packet */
+                if($protocol >= ProtocolConstants::BEDROCK_1_17_30) {
+                    $packet->clientData["SkinGeometryDataEngineVersion"] = base64_encode("1.17.30");
+                }
+                return $packet;
+        }
         // todo
         return $packet;
     }
