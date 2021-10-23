@@ -1,7 +1,7 @@
 name: MultiVersion
 api: 3.25.0
-main: A Backwards Multi Version plugin for PocketMine-MP (API3).
+main: AkmalFairuz\MultiVersion\Loader
 version: 471.0
-description: A Ba
+description: A Backwards Multi Version plugin for PocketMine-MP (API3).
 mcpe-protocol: 471
 author: AkmalFairuz
