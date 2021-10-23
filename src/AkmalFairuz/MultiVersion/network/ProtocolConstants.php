@@ -9,6 +9,7 @@ use pocketmine\network\mcpe\protocol\ProtocolInfo;
 class ProtocolConstants{
 
     public const BEDROCK_1_17_30 = 465;
+    public const BEDROCK_1_17_10 = 448;
 
     public const SUPPORTED_PROTOCOLS = [
         ProtocolInfo::CURRENT_PROTOCOL,
