@@ -1,0 +1,7 @@
+name: MultiVersion
+api: 3.25.0
+main: AkmalFairuz\MultiVersion\Loader
+version: 471.0
+description: A Multi Versi
+mcpe-protocol: 471
+author: AkmalFairuz
