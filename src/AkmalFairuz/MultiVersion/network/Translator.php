@@ -16,8 +16,16 @@ use pocketmine\network\mcpe\protocol\PlayerListPacket;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
 use pocketmine\network\mcpe\protocol\UpdateBlockPacket;
 use function base64_encode;
+use function in_array;
 
 class Translator{
+
+    const TRANSLATED_PACKETS_FROM_SERVER = [
+        UpdateBlockPacket::NETWORK_ID,
+        CraftingDataPacket::NETWORK_ID,
+        PlayerListPacket::NETWORK_ID,
+        StartGamePacket::NETWORK_ID
+    ];
 
     public static function fromClient(DataPacket $packet, int $protocol) : DataPacket{
         if($packet->isEncoded) {
@@ -37,10 +45,13 @@ class Translator{
     }
 
     public static function fromServer(DataPacket $packet, int $protocol) : DataPacket {
+        $pid = $packet::NETWORK_ID;
+        if(!in_array($pid, self::TRANSLATED_PACKETS_FROM_SERVER, true)) {
+            return $packet;
+        }
         if($packet->isEncoded) {
             $packet->decode();
         }
-        $pid = $packet::NETWORK_ID;
         switch($pid) {
             case UpdateBlockPacket::NETWORK_ID:
                 /** @var UpdateBlockPacket $packet */

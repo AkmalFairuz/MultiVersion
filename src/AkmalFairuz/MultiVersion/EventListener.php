@@ -74,11 +74,11 @@ class EventListener implements Listener{
         }
         $player = $event->getPlayer();
         $packet = $event->getPacket();
+        $protocol = SessionManager::getProtocol($player);
+        if($protocol === null) {
+            return;
+        }
         if($packet instanceof BatchPacket) {
-            $protocol = SessionManager::getProtocol($player);
-            if($protocol === null) {
-                return;
-            }
             $packet->decode();
 
             $newPacket = new BatchPacket();
@@ -95,6 +95,13 @@ class EventListener implements Listener{
             $this->cancel_send = true;
             $player->sendDataPacket($newPacket, false, true);
             $this->cancel_send = false;
+            $event->setCancelled();
+        } else {
+            $newPacket = Translator::fromServer($packet, $protocol);
+            $this->cancel_send = true;
+            $player->sendDataPacket($newPacket, false, true);
+            $this->cancel_send = false;
         }
+
     }
 }
