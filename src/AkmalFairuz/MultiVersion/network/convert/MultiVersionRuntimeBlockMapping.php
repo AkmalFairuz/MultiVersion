@@ -24,7 +24,7 @@ class MultiVersionRuntimeBlockMapping{
     /** @var int[] */
     private static $runtimeToLegacyMap = [];
     /** @var CompoundTag[]|null */
-    private static $bedrockKnownStates = null;
+    private static $bedrockKnownStates = [];
 
     const PROTOCOL = [
         ProtocolConstants::BEDROCK_1_17_10 => "_1_17_10",

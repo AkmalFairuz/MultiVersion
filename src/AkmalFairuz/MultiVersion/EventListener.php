@@ -19,6 +19,7 @@ use pocketmine\network\mcpe\protocol\PlayStatusPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use function get_class;
 use function in_array;
+use function var_dump;
 
 class EventListener implements Listener{
 
@@ -86,7 +87,7 @@ class EventListener implements Listener{
             $newPacket = new BatchPacket();
             foreach($packet->getPackets() as $buf){
                 $pk = PacketPool::getPacket($buf);
-
+                $pk->decode();
                 if(!$pk->canBeBatched()){
                     throw new \UnexpectedValueException("Received invalid " . get_class($pk) . " inside BatchPacket");
                 }
@@ -95,14 +96,18 @@ class EventListener implements Listener{
             $newPacket->encode();
 
             $this->cancel_send = true;
-            $player->sendDataPacket($newPacket, false, true);
+            $player->sendDataPacket($newPacket);
             $this->cancel_send = false;
             $event->setCancelled();
         } else {
+            if($packet->isEncoded){
+                $packet->decode();
+            }
             $newPacket = Translator::fromServer($packet, $protocol);
             $this->cancel_send = true;
-            $player->sendDataPacket($newPacket, false, true);
+            $player->sendDataPacket($newPacket);
             $this->cancel_send = false;
+            $event->setCancelled();
         }
 
     }
