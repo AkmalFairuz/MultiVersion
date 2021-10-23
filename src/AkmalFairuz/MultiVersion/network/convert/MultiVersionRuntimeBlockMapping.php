@@ -27,6 +27,7 @@ class MultiVersionRuntimeBlockMapping{
     private static $bedrockKnownStates = null;
 
     const PROTOCOL = [
+        ProtocolConstants::BEDROCK_1_17_10 => "_1_17_10",
         ProtocolConstants::BEDROCK_1_17_30 => "_1_17_30"
     ];
 
@@ -57,9 +58,6 @@ class MultiVersionRuntimeBlockMapping{
         /** @var R12ToCurrentBlockMapEntry[] $legacyStateMap */
         $legacyStateMap = [];
         $path = Loader::$resourcesPath . "vanilla/r12_to_current_block_map".self::PROTOCOL[$protocol].".bin";
-        if(!is_file($path)) {
-            $path = Loader::$resourcesPath . "vanilla/r12_to_current_block_map_1_17_30.bin";
-        }
         $legacyStateMapReader = new NetworkBinaryStream(file_get_contents($path));
         $nbtReader = new NetworkLittleEndianNBTStream();
         while(!$legacyStateMapReader->feof()){
