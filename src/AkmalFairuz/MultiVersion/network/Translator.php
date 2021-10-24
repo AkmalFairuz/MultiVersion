@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace AkmalFairuz\MultiVersion\network;
 
 use AkmalFairuz\MultiVersion\network\convert\MultiVersionRuntimeBlockMapping;
+use AkmalFairuz\MultiVersion\network\translator\AnimateEntityPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\CraftingDataPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\PlayerListPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\PlayerSkinPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\StartGamePacketTranslator;
 use pocketmine\network\mcpe\convert\RuntimeBlockMapping;
+use pocketmine\network\mcpe\protocol\AnimateEntityPacket;
 use pocketmine\network\mcpe\protocol\CraftingDataPacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\LevelEventPacket;
@@ -64,6 +66,11 @@ class Translator{
                         $packet->data = MultiVersionRuntimeBlockMapping::toStaticRuntimeId($block->getId(), $block->getDamage(), $protocol) | (1 << 24);
                         break;
                 }
+                return $packet;
+            case AnimateEntityPacket::NETWORK_ID:
+                /** @var AnimateEntityPacket $packet */
+                self::encodeHeader($packet);
+                AnimateEntityPacketTranslator::serialize($packet, $protocol);
                 return $packet;
             case CraftingDataPacket::NETWORK_ID:
                 /** @var CraftingDataPacket $packet */
