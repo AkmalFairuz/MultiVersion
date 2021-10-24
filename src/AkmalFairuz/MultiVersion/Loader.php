@@ -6,7 +6,6 @@ namespace AkmalFairuz\MultiVersion;
 
 use AkmalFairuz\MultiVersion\network\convert\MultiVersionRuntimeBlockMapping;
 use pocketmine\plugin\PluginBase;
-use function mkdir;
 
 class Loader extends PluginBase{
 

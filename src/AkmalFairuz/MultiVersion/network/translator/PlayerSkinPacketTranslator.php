@@ -16,4 +16,12 @@ class PlayerSkinPacketTranslator{
         $packet->putString($packet->oldSkinName);
         ($packet->buffer .= ($packet->skin->isVerified() ? "\x01" : "\x00"));
     }
+
+    public static function unserialize(PlayerSkinPacket $packet, int $protocol) {
+        $packet->uuid = $packet->getUUID();
+        $packet->skin = Serializer::getSkin($packet, $protocol);
+        $packet->newSkinName = $packet->getString();
+        $packet->oldSkinName = $packet->getString();
+        $packet->skin->setVerified((($packet->get(1) !== "\x00")));
+    }
 }

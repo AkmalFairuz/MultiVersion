@@ -7,23 +7,22 @@ namespace AkmalFairuz\MultiVersion\network;
 use AkmalFairuz\MultiVersion\network\convert\MultiVersionRuntimeBlockMapping;
 use AkmalFairuz\MultiVersion\network\translator\CraftingDataPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\PlayerListPacketTranslator;
+use AkmalFairuz\MultiVersion\network\translator\PlayerSkinPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\StartGamePacketTranslator;
 use pocketmine\network\mcpe\convert\RuntimeBlockMapping;
 use pocketmine\network\mcpe\protocol\CraftingDataPacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
+use pocketmine\network\mcpe\protocol\LevelEventPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\PlayerListPacket;
+use pocketmine\network\mcpe\protocol\PlayerSkinPacket;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
 use pocketmine\network\mcpe\protocol\UpdateBlockPacket;
-use function base64_encode;
-use function var_dump;
+use pocketmine\Player;
 
 class Translator{
 
-    public static function fromClient(DataPacket $packet, int $protocol) : DataPacket{
-        if($packet->isEncoded) {
-            $packet->decode();
-        }
+    public static function fromClient(DataPacket $packet, int $protocol, Player $player) : DataPacket{
         $pid = $packet::NETWORK_ID;
         switch($pid) {
             case LoginPacket::NETWORK_ID:
@@ -32,19 +31,39 @@ class Translator{
                     $packet->clientData["SkinGeometryDataEngineVersion"] = "";
                 }
                 return $packet;
+            case PlayerSkinPacket::NETWORK_ID:
+                /** @var PlayerSkinPacket $packet */
+                if($protocol < ProtocolConstants::BEDROCK_1_17_30) {
+                    self::decodeHeader($packet);
+                    PlayerSkinPacketTranslator::unserialize($packet, $protocol);
+                }
+                return $packet;
         }
-        // todo
         return $packet;
     }
 
-    public static function fromServer(DataPacket $packet, int $protocol) : DataPacket {
+    public static function fromServer(DataPacket $packet, int $protocol, Player $player) : DataPacket {
         $pid = $packet::NETWORK_ID;
         switch($pid) {
             case UpdateBlockPacket::NETWORK_ID:
                 /** @var UpdateBlockPacket $packet */
                 $block = RuntimeBlockMapping::fromStaticRuntimeId($packet->blockRuntimeId);
                 $packet->blockRuntimeId = MultiVersionRuntimeBlockMapping::toStaticRuntimeId($block[0], $block[1], $protocol);
-                $packet->encode();
+                return $packet;
+            case LevelEventPacket::NETWORK_ID:
+                /** @var LevelEventPacket $packet */
+                switch($packet->evid) {
+                    case LevelEventPacket::EVENT_PARTICLE_DESTROY:
+                        $block = RuntimeBlockMapping::fromStaticRuntimeId($packet->data);
+                        $packet->data = MultiVersionRuntimeBlockMapping::toStaticRuntimeId($block[0], $block[1], $protocol);
+                        break;
+                    case LevelEventPacket::EVENT_PARTICLE_PUNCH_BLOCK:
+                        $position = $packet->position;
+                        $block = $player->getLevel()->getBlock($position);
+                        // todo, idk how to get face
+                        $packet->data = MultiVersionRuntimeBlockMapping::toStaticRuntimeId($block->getId(), $block->getDamage(), $protocol) | (1 << 24);
+                        break;
+                }
                 return $packet;
             case CraftingDataPacket::NETWORK_ID:
                 /** @var CraftingDataPacket $packet */
@@ -61,6 +80,11 @@ class Translator{
                 self::encodeHeader($packet);
                 StartGamePacketTranslator::serialize($packet, $protocol);
                 return $packet;
+            case PlayerSkinPacket::NETWORK_ID:
+                /** @var PlayerSkinPacket $packet */
+                self::encodeHeader($packet);
+                PlayerSkinPacketTranslator::serialize($packet, $protocol);
+                return $packet;
         }
         return $packet;
     }
@@ -73,5 +97,17 @@ class Translator{
             ($packet->recipientSubId << 12)
         );
         $packet->isEncoded = true;
+    }
+
+    public static function decodeHeader(DataPacket $packet) {
+        $packet->isEncoded = false;
+        $packet->offset = 0;
+        $header = $packet->getUnsignedVarInt();
+        $pid = $header & $packet::PID_MASK;
+        if($pid !== $packet::NETWORK_ID){
+            throw new \UnexpectedValueException("Expected " . $packet::NETWORK_ID . " for packet ID, got $pid");
+        }
+        $packet->senderSubId = ($header >> 10) & 0x03;
+        $packet->recipientSubId = ($header >> 12) & 0x03;
     }
 }
