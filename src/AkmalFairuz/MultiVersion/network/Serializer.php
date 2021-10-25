@@ -165,7 +165,7 @@ class Serializer{
         }
 
         $coreData = $item->getDamage();
-        [$netId, $netData] = ItemTranslator::getInstance()->toNetworkId($item->getId(), $coreData, $protocol);
+        [$netId, $netData] = MultiVersionItemTranslator::getInstance()->toNetworkId($item->getId(), $coreData, $protocol);
 
         $packet->putVarInt($netId);
         ($packet->buffer .= (\pack("v", $item->getCount())));
@@ -223,7 +223,7 @@ class Serializer{
                 $extraData->putLInt(0); //CanPlaceOn entry count (TODO)
                 $extraData->putLInt(0); //CanDestroy entry count (TODO)
 
-                if($netId === ItemTypeDictionary::getInstance()->fromStringId("minecraft:shield", $protocol)){
+                if($netId === MultiVersionItemTypeDictionary::getInstance()->fromStringId("minecraft:shield", $protocol)){
                     $extraData->putLLong(0); //"blocking tick" (ffs mojang)
                 }
                 return $extraData->getBuffer();
