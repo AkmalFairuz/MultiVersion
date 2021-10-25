@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AkmalFairuz\MultiVersion\network\convert;
 
+use AkmalFairuz\MultiVersion\Loader;
 use AkmalFairuz\MultiVersion\network\ProtocolConstants;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\types\ItemTypeEntry;
@@ -41,7 +42,7 @@ class MultiVersionItemTypeDictionary{
     private static function make() : self{
         $itemTypes = [];
         foreach(self::PROTOCOL as $protocol => $file){
-            $data = file_get_contents(\pocketmine\RESOURCE_PATH . '/vanilla/required_item_list'.$file.'.json');
+            $data = file_get_contents(Loader::$resourcesPath . 'vanilla/required_item_list'.$file.'.json');
             if($data === false) throw new AssumptionFailedError("Missing required resource file");
             $table = json_decode($data, true);
             if(!is_array($table)){

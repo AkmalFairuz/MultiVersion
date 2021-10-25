@@ -27,7 +27,7 @@ class MultiVersionSessionAdapter extends PlayerNetworkSessionAdapter{
 
     public function __construct(Server $server, Player $player, int $protocol){
         parent::__construct($server, $player);
-        $this->fixedPlayer = $player;
+        $this->fixedPlayer = $player; // this->player is private
         $this->protocol = $protocol;
     }
 

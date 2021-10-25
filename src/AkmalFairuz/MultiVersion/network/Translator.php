@@ -6,9 +6,12 @@ namespace AkmalFairuz\MultiVersion\network;
 
 use AkmalFairuz\MultiVersion\network\convert\MultiVersionRuntimeBlockMapping;
 use AkmalFairuz\MultiVersion\network\translator\AddItemActorPacketTranslator;
+use AkmalFairuz\MultiVersion\network\translator\AddPlayerPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\AnimateEntityPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\CraftingDataPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\InventoryContentPacketTranslator;
+use AkmalFairuz\MultiVersion\network\translator\InventorySlotPacketTranslator;
+use AkmalFairuz\MultiVersion\network\translator\InventoryTransactionPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\MobArmorEquipmentPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\MobEquipmentPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\PlayerListPacketTranslator;
@@ -16,10 +19,13 @@ use AkmalFairuz\MultiVersion\network\translator\PlayerSkinPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\StartGamePacketTranslator;
 use pocketmine\network\mcpe\convert\RuntimeBlockMapping;
 use pocketmine\network\mcpe\protocol\AddItemActorPacket;
+use pocketmine\network\mcpe\protocol\AddPlayerPacket;
 use pocketmine\network\mcpe\protocol\AnimateEntityPacket;
 use pocketmine\network\mcpe\protocol\CraftingDataPacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryContentPacket;
+use pocketmine\network\mcpe\protocol\InventorySlotPacket;
+use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\LevelEventPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\MobArmorEquipmentPacket;
@@ -48,6 +54,11 @@ class Translator{
                     PlayerSkinPacketTranslator::unserialize($packet, $protocol);
                 }
                 return $packet;
+            case InventoryTransactionPacket::NETWORK_ID:
+                /** @var InventoryTransactionPacket $packet */
+                self::decodeHeader($packet);
+                InventoryTransactionPacketTranslator::deserialize($packet, $protocol);
+                return $packet;
         }
         return $packet;
     }
@@ -68,12 +79,11 @@ class Translator{
                         $packet->data = MultiVersionRuntimeBlockMapping::toStaticRuntimeId($block[0], $block[1], $protocol);
                         break;
                     case LevelEventPacket::EVENT_PARTICLE_PUNCH_BLOCK:
-                        //$position = $packet->position;
-                        //$block = $player->getLevel()->getBlock($position);
-                        // todo, idk how to get face
-                        //$packet->data = MultiVersionRuntimeBlockMapping::toStaticRuntimeId($block->getId(), $block->getDamage(), $protocol) | (1 << 24);
-                        //break;
-                        return null;
+                        $position = $packet->position;
+                        $block = $player->getLevelNonNull()->getBlock($position);
+                        $face = $packet->data & ~$block->getRuntimeId();
+                        $packet->data = MultiVersionRuntimeBlockMapping::toStaticRuntimeId($block->getId(), $block->getDamage(), $protocol) | $face;
+                        return $packet;
                 }
                 return $packet;
             case AnimateEntityPacket::NETWORK_ID:
@@ -120,6 +130,15 @@ class Translator{
                 /** @var MobArmorEquipmentPacket $packet */
                 self::encodeHeader($packet);
                 MobArmorEquipmentPacketTranslator::serialize($packet, $protocol);
+                return $packet;
+            case AddPlayerPacket::NETWORK_ID:
+                /** @var AddPlayerPacket $packet */
+                self::encodeHeader($packet);
+                AddPlayerPacketTranslator::serialize($packet, $protocol);
+                return $packet;
+            case InventorySlotPacket::NETWORK_ID:
+                /** @var InventorySlotPacket $packet */
+                InventorySlotPacketTranslator::serialize($packet, $protocol);
                 return $packet;
         }
         return $packet;

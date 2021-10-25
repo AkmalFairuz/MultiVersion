@@ -10,6 +10,7 @@ use AkmalFairuz\MultiVersion\network\Translator;
 use AkmalFairuz\MultiVersion\session\SessionManager;
 use AkmalFairuz\MultiVersion\task\CompressTask;
 use AkmalFairuz\MultiVersion\task\DecompressTask;
+use AkmalFairuz\MultiVersion\utils\Utils;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
@@ -54,10 +55,7 @@ class EventListener implements Listener{
             $protocol = $packet->protocol;
             $packet->protocol = ProtocolInfo::CURRENT_PROTOCOL;
 
-            $reflection = new \ReflectionClass($player);
-            $prop = $reflection->getProperty("sessionAdapter");
-            $prop->setAccessible(true);
-            $prop->setValue($player, new MultiVersionSessionAdapter($player->getServer(), $player, $protocol));
+            Utils::forceSetProps($player, "sessionAdapter", new MultiVersionSessionAdapter($player->getServer(), $player, $protocol));
 
             SessionManager::create($player, $protocol);
 
