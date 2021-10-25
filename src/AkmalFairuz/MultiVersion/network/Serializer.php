@@ -4,12 +4,22 @@ declare(strict_types=1);
 
 namespace AkmalFairuz\MultiVersion\network;
 
+use AkmalFairuz\MultiVersion\network\convert\MultiVersionRuntimeBlockMapping;
+use pocketmine\block\BlockIds;
+use pocketmine\item\Durable;
+use pocketmine\item\Item;
+use pocketmine\nbt\LittleEndianNBTStream;
+use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\network\mcpe\convert\ItemTranslator;
+use pocketmine\network\mcpe\convert\ItemTypeDictionary;
+use pocketmine\network\mcpe\NetworkBinaryStream;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\types\PersonaPieceTintColor;
 use pocketmine\network\mcpe\protocol\types\PersonaSkinPiece;
 use pocketmine\network\mcpe\protocol\types\SkinAnimation;
 use pocketmine\network\mcpe\protocol\types\SkinData;
 use pocketmine\network\mcpe\protocol\types\SkinImage;
+use pocketmine\utils\BinaryStream;
 use function count;
 
 class Serializer{
@@ -139,6 +149,88 @@ class Serializer{
         $height = ((\unpack("V", $packet->get(4))[1] << 32 >> 32));
         $data = $packet->getString();
         return new SkinImage($height, $width, $data);
+    }
+
+    public static function putItemStack(NetworkBinaryStream $packet, int $protocol, Item $item, callable $writeExtraCrapInTheMiddle) {
+        if($item->getId() === 0){
+            $packet->putVarInt(0);
+
+            return;
+        }
+
+        $coreData = $item->getDamage();
+        [$netId, $netData] = ItemTranslator::getInstance()->toNetworkId($item->getId(), $coreData, $protocol);
+
+        $packet->putVarInt($netId);
+        ($packet->buffer .= (\pack("v", $item->getCount())));
+        $packet->putUnsignedVarInt($netData);
+
+        $writeExtraCrapInTheMiddle($packet);
+
+        $blockRuntimeId = 0;
+        $isBlockItem = $item->getId() < 256;
+        if($isBlockItem){
+            $block = $item->getBlock();
+            if($block->getId() !== BlockIds::AIR){
+                $blockRuntimeId = MultiVersionRuntimeBlockMapping::toStaticRuntimeId($block->getId(), $block->getDamage(), $protocol);
+            }
+        }
+        $packet->putVarInt($blockRuntimeId);
+
+        $nbt = null;
+        if($item->hasCompoundTag()){
+            $nbt = clone $item->getNamedTag();
+        }
+        if($item instanceof Durable and $coreData > 0){
+            if($nbt !== null){
+                if(($existing = $nbt->getTag("Damage")) !== null){
+                    $nbt->removeTag("Damage");
+                    $existing->setName("___Damage_ProtocolCollisionResolution___");
+                    $nbt->setTag($existing);
+                }
+            }else{
+                $nbt = new CompoundTag();
+            }
+            $nbt->setInt("Damage", $coreData);
+        }elseif($isBlockItem && $coreData !== 0){
+            //TODO HACK: This foul-smelling code ensures that we can correctly deserialize an item when the
+            //client sends it back to us, because as of 1.16.220, blockitems quietly discard their metadata
+            //client-side. Aside from being very annoying, this also breaks various server-side behaviours.
+            if($nbt === null){
+                $nbt = new CompoundTag();
+            }
+            $nbt->setInt("___Meta___", $coreData);
+        }
+
+        $packet->putString(
+            (static function() use ($protocol, $nbt, $netId) : string{
+                $extraData = new NetworkBinaryStream();
+
+                if($nbt !== null){
+                    $extraData->putLShort(0xffff);
+                    $extraData->putByte(1); //TODO: NBT data version (?)
+                    $extraData->put((new LittleEndianNBTStream())->write($nbt));
+                }else{
+                    $extraData->putLShort(0);
+                }
+
+                $extraData->putLInt(0); //CanPlaceOn entry count (TODO)
+                $extraData->putLInt(0); //CanDestroy entry count (TODO)
+
+                if($netId === ItemTypeDictionary::getInstance()->fromStringId("minecraft:shield", $protocol)){
+                    $extraData->putLLong(0); //"blocking tick" (ffs mojang)
+                }
+                return $extraData->getBuffer();
+            })());
+    }
+
+    public static function putItem(NetworkBinaryStream $packet, int $protocol, Item $item, int $stackId) {
+        self::putItemStack($packet, $protocol, $item, function(NetworkBinaryStream $out) use ($stackId){
+            $out->putBool($stackId !== 0);
+            if($stackId !== 0) {
+                $out->putVarInt($stackId);
+            }
+        });
     }
 
 }

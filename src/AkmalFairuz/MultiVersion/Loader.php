@@ -21,8 +21,10 @@ class Loader extends PluginBase{
         self::$instance = $this;
 
         foreach($this->getResources() as $k => $v) {
-            $this->saveResource($k, true);
+            $this->saveResource($k, $k !== "config.yml");
         }
+
+        Config::init($this->getDataFolder() . "config.yml");
 
         self::$resourcesPath = $this->getDataFolder();
         MultiVersionRuntimeBlockMapping::init();

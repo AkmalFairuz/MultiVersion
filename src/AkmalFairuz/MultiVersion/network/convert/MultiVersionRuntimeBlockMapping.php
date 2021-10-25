@@ -14,7 +14,6 @@ use pocketmine\network\mcpe\NetworkBinaryStream;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\utils\AssumptionFailedError;
 use function file_get_contents;
-use function is_file;
 use function json_decode;
 
 class MultiVersionRuntimeBlockMapping{

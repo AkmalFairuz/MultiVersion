@@ -5,17 +5,25 @@ declare(strict_types=1);
 namespace AkmalFairuz\MultiVersion\network;
 
 use AkmalFairuz\MultiVersion\network\convert\MultiVersionRuntimeBlockMapping;
+use AkmalFairuz\MultiVersion\network\translator\AddItemActorPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\AnimateEntityPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\CraftingDataPacketTranslator;
+use AkmalFairuz\MultiVersion\network\translator\InventoryContentPacketTranslator;
+use AkmalFairuz\MultiVersion\network\translator\MobArmorEquipmentPacketTranslator;
+use AkmalFairuz\MultiVersion\network\translator\MobEquipmentPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\PlayerListPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\PlayerSkinPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\StartGamePacketTranslator;
 use pocketmine\network\mcpe\convert\RuntimeBlockMapping;
+use pocketmine\network\mcpe\protocol\AddItemActorPacket;
 use pocketmine\network\mcpe\protocol\AnimateEntityPacket;
 use pocketmine\network\mcpe\protocol\CraftingDataPacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
+use pocketmine\network\mcpe\protocol\InventoryContentPacket;
 use pocketmine\network\mcpe\protocol\LevelEventPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
+use pocketmine\network\mcpe\protocol\MobArmorEquipmentPacket;
+use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
 use pocketmine\network\mcpe\protocol\PlayerListPacket;
 use pocketmine\network\mcpe\protocol\PlayerSkinPacket;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
@@ -44,7 +52,7 @@ class Translator{
         return $packet;
     }
 
-    public static function fromServer(DataPacket $packet, int $protocol, Player $player) : DataPacket {
+    public static function fromServer(DataPacket $packet, int $protocol, Player $player) : ?DataPacket {
         $pid = $packet::NETWORK_ID;
         switch($pid) {
             case UpdateBlockPacket::NETWORK_ID:
@@ -60,11 +68,12 @@ class Translator{
                         $packet->data = MultiVersionRuntimeBlockMapping::toStaticRuntimeId($block[0], $block[1], $protocol);
                         break;
                     case LevelEventPacket::EVENT_PARTICLE_PUNCH_BLOCK:
-                        $position = $packet->position;
-                        $block = $player->getLevel()->getBlock($position);
+                        //$position = $packet->position;
+                        //$block = $player->getLevel()->getBlock($position);
                         // todo, idk how to get face
-                        $packet->data = MultiVersionRuntimeBlockMapping::toStaticRuntimeId($block->getId(), $block->getDamage(), $protocol) | (1 << 24);
-                        break;
+                        //$packet->data = MultiVersionRuntimeBlockMapping::toStaticRuntimeId($block->getId(), $block->getDamage(), $protocol) | (1 << 24);
+                        //break;
+                        return null;
                 }
                 return $packet;
             case AnimateEntityPacket::NETWORK_ID:
@@ -91,6 +100,26 @@ class Translator{
                 /** @var PlayerSkinPacket $packet */
                 self::encodeHeader($packet);
                 PlayerSkinPacketTranslator::serialize($packet, $protocol);
+                return $packet;
+            case AddItemActorPacket::NETWORK_ID:
+                /** @var AddItemActorPacket $packet */
+                self::encodeHeader($packet);
+                AddItemActorPacketTranslator::serialize($packet, $protocol);
+                return $packet;
+            case InventoryContentPacket::NETWORK_ID:
+                /** @var InventoryContentPacket $packet */
+                self::encodeHeader($packet);
+                InventoryContentPacketTranslator::serialize($packet, $protocol);
+                return $packet;
+            case MobEquipmentPacket::NETWORK_ID:
+                /** @var MobEquipmentPacket $packet */
+                self::encodeHeader($packet);
+                MobEquipmentPacketTranslator::serialize($packet, $protocol);
+                return $packet;
+            case MobArmorEquipmentPacket::NETWORK_ID:
+                /** @var MobArmorEquipmentPacket $packet */
+                self::encodeHeader($packet);
+                MobArmorEquipmentPacketTranslator::serialize($packet, $protocol);
                 return $packet;
         }
         return $packet;

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace AkmalFairuz\MultiVersion\network\translator;
 
+use AkmalFairuz\MultiVersion\network\convert\MultiVersionItemTranslator;
 use AkmalFairuz\MultiVersion\network\ProtocolConstants;
+use AkmalFairuz\MultiVersion\network\Serializer;
 use pocketmine\inventory\FurnaceRecipe;
 use pocketmine\inventory\ShapedRecipe;
 use pocketmine\inventory\ShapelessRecipe;
@@ -17,20 +19,20 @@ use function str_repeat;
 
 class CraftingDataPacketTranslator{
 
-    private static function writeEntry($entry, NetworkBinaryStream $stream, int $pos) : int{
+    private static function writeEntry($entry, NetworkBinaryStream $stream, int $pos, int $protocol) : int{
         if($entry instanceof ShapelessRecipe){
-            return self::writeShapelessRecipe($entry, $stream, $pos);
+            return self::writeShapelessRecipe($entry, $stream, $pos, $protocol);
         }elseif($entry instanceof ShapedRecipe){
-            return self::writeShapedRecipe($entry, $stream, $pos);
+            return self::writeShapedRecipe($entry, $stream, $pos, $protocol);
         }elseif($entry instanceof FurnaceRecipe){
-            return self::writeFurnaceRecipe($entry, $stream);
+            return self::writeFurnaceRecipe($entry, $stream, $protocol);
         }
         //TODO: add MultiRecipe
 
         return -1;
     }
 
-    private static function writeShapelessRecipe(ShapelessRecipe $recipe, NetworkBinaryStream $stream, int $pos) : int{
+    private static function writeShapelessRecipe(ShapelessRecipe $recipe, NetworkBinaryStream $stream, int $pos, int $protocol) : int{
         $stream->putString((\pack("N", $pos))); //some kind of recipe ID, doesn't matter what it is as long as it's unique
         $stream->putUnsignedVarInt($recipe->getIngredientCount());
         foreach($recipe->getIngredientList() as $item){
@@ -40,7 +42,7 @@ class CraftingDataPacketTranslator{
         $results = $recipe->getResults();
         $stream->putUnsignedVarInt(count($results));
         foreach($results as $item){
-            $stream->putItemStackWithoutStackId($item);
+            Serializer::putItemStack($stream, $protocol, $item, function() {});
         }
 
         $stream->put(str_repeat("\x00", 16)); //Null UUID
@@ -51,7 +53,7 @@ class CraftingDataPacketTranslator{
         return CraftingDataPacket::ENTRY_SHAPELESS;
     }
 
-    private static function writeShapedRecipe(ShapedRecipe $recipe, NetworkBinaryStream $stream, int $pos) : int{
+    private static function writeShapedRecipe(ShapedRecipe $recipe, NetworkBinaryStream $stream, int $pos, int $protocol) : int{
         $stream->putString((\pack("N", $pos))); //some kind of recipe ID, doesn't matter what it is as long as it's unique
         $stream->putVarInt($recipe->getWidth());
         $stream->putVarInt($recipe->getHeight());
@@ -65,7 +67,7 @@ class CraftingDataPacketTranslator{
         $results = $recipe->getResults();
         $stream->putUnsignedVarInt(count($results));
         foreach($results as $item){
-            $stream->putItemStackWithoutStackId($item);
+            Serializer::putItemStack($stream, $protocol, $item, function() {});
         }
 
         $stream->put(str_repeat("\x00", 16)); //Null UUID
@@ -76,13 +78,13 @@ class CraftingDataPacketTranslator{
         return CraftingDataPacket::ENTRY_SHAPED;
     }
 
-    private static function writeFurnaceRecipe(FurnaceRecipe $recipe, NetworkBinaryStream $stream) : int{
+    private static function writeFurnaceRecipe(FurnaceRecipe $recipe, NetworkBinaryStream $stream, int $protocol) : int{
         $input = $recipe->getInput();
         if($input->hasAnyDamageValue()){
-            [$netId, ] = ItemTranslator::getInstance()->toNetworkId($input->getId(), 0);
+            [$netId, ] = MultiVersionItemTranslator::getInstance()->toNetworkId($input->getId(), 0, $protocol);
             $netData = 0x7fff;
         }else{
-            [$netId, $netData] = ItemTranslator::getInstance()->toNetworkId($input->getId(), $input->getDamage());
+            [$netId, $netData] = MultiVersionItemTranslator::getInstance()->toNetworkId($input->getId(), $input->getDamage(), $protocol);
         }
         $stream->putVarInt($netId);
         $stream->putVarInt($netData);
@@ -97,7 +99,7 @@ class CraftingDataPacketTranslator{
         $writer = new NetworkBinaryStream();
         $counter = 0;
         foreach($packet->entries as $d){
-            $entryType = self::writeEntry($d, $writer, ++$counter);
+            $entryType = self::writeEntry($d, $writer, ++$counter, $protocol);
             if($entryType >= 0){
                 $packet->putVarInt($entryType);
                 ($packet->buffer .= $writer->getBuffer());

@@ -8,6 +8,8 @@ use AkmalFairuz\MultiVersion\network\MultiVersionSessionAdapter;
 use AkmalFairuz\MultiVersion\network\ProtocolConstants;
 use AkmalFairuz\MultiVersion\network\Translator;
 use AkmalFairuz\MultiVersion\session\SessionManager;
+use AkmalFairuz\MultiVersion\task\CompressTask;
+use AkmalFairuz\MultiVersion\task\DecompressTask;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
@@ -18,6 +20,8 @@ use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\mcpe\protocol\PacketViolationWarningPacket;
 use pocketmine\network\mcpe\protocol\PlayStatusPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
+use pocketmine\Player;
+use pocketmine\Server;
 use function get_class;
 use function in_array;
 
@@ -84,23 +88,18 @@ class EventListener implements Listener{
         }
         if($packet instanceof BatchPacket) {
             if($packet->isEncoded){
+                if(Config::get("async_batch_decompression")) {
+                    $task = new DecompressTask($packet, function(BatchPacket $packet) use ($player, $protocol) {
+                        $this->translateBatchPacketAndSend($packet, $player, $protocol);
+                    });
+                    Server::getInstance()->getAsyncPool()->submitTask($task);
+                    $event->setCancelled();
+                    return;
+                }
                 $packet->decode();
             }
 
-            $newPacket = new BatchPacket();
-            foreach($packet->getPackets() as $buf){
-                $pk = PacketPool::getPacket($buf);
-                $pk->decode();
-                if(!$pk->canBeBatched()){
-                    throw new \UnexpectedValueException("Received invalid " . get_class($pk) . " inside BatchPacket");
-                }
-                $newPacket->addPacket(Translator::fromServer($pk, $protocol, $player));
-            }
-            $newPacket->encode();
-
-            $this->cancel_send = true;
-            $player->sendDataPacket($newPacket);
-            $this->cancel_send = false;
+            $this->translateBatchPacketAndSend($packet, $player, $protocol);
             $event->setCancelled();
         } else {
             if($packet->isEncoded){
@@ -112,6 +111,34 @@ class EventListener implements Listener{
             $this->cancel_send = false;
             $event->setCancelled();
         }
+    }
 
+    private function translateBatchPacketAndSend(BatchPacket $packet, Player $player, int $protocol) {
+        $newPacket = new BatchPacket();
+        foreach($packet->getPackets() as $buf){
+            $pk = PacketPool::getPacket($buf);
+            $pk->decode();
+            if(!$pk->canBeBatched()){
+                throw new \UnexpectedValueException("Received invalid " . get_class($pk) . " inside BatchPacket");
+            }
+            $translated = Translator::fromServer($pk, $protocol, $player);
+            if($translated === null) {
+                continue;
+            }
+            $newPacket->addPacket($translated);
+        }
+        if(Config::get("async_batch_compression")){
+            $task = new CompressTask($newPacket, function(BatchPacket $packet) use ($player) {
+                $this->cancel_send = true;
+                $player->sendDataPacket($packet);
+                $this->cancel_send = false;
+            });
+            Server::getInstance()->getAsyncPool()->submitTask($task);
+            return;
+        }
+
+        $this->cancel_send = true;
+        $player->sendDataPacket($newPacket);
+        $this->cancel_send = false;
     }
 }
