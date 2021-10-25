@@ -19,25 +19,19 @@ class MultiVersionItemTranslator{
 
     /**
      * @var int[][]
-     * @phpstan-var array<int, int>
      */
     private $simpleCoreToNetMapping = [];
     /**
      * @var int[][]
-     * @phpstan-var array<int, int>
      */
     private $simpleNetToCoreMapping = [];
 
     /**
-     * runtimeId = array[internalId][metadata]
      * @var int[][][]
-     * @phpstan-var array<int, array<int, int>>
      */
     private $complexCoreToNetMapping = [];
     /**
-     * [internalId, metadata] = array[runtimeId]
      * @var int[][][]
-     * @phpstan-var array<int, array{int, int}>
      */
     private $complexNetToCoreMapping = [];
 
@@ -143,7 +137,7 @@ class MultiVersionItemTranslator{
      * @return int[]
      * @phpstan-return array{int, int}
      */
-    public function fromNetworkId(int $networkId, int $networkMeta, ?bool &$isComplexMapping = null, int $protocol = ProtocolInfo::CURRENT_PROTOCOL) : array{
+    public function fromNetworkId(int $networkId, int $networkMeta, ?bool &$isComplexMapping = null, int $protocol) : array{
         if(isset($this->complexNetToCoreMapping[$protocol][$networkId])){
             if($networkMeta !== 0){
                 throw new \UnexpectedValueException("Unexpected non-zero network meta on complex item mapping");

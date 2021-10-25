@@ -22,17 +22,14 @@ class MultiVersionItemTypeDictionary{
 
     /**
      * @var ItemTypeEntry[]
-     * @phpstan-var list<ItemTypeEntry>
      */
     private $itemTypes;
     /**
      * @var string[][]
-     * @phpstan-var array<int, string>
      */
     private $intToStringIdMap = [];
     /**
      * @var int[][]
-     * @phpstan-var array<string, int>
      */
     private $stringToIntMap = [];
 
@@ -81,7 +78,7 @@ class MultiVersionItemTypeDictionary{
      * @return ItemTypeEntry[]
      * @phpstan-return list<ItemTypeEntry>
      */
-    public function getEntries(int $protocol = ProtocolInfo::CURRENT_PROTOCOL) : array{
+    public function getEntries(int $protocol) : array{
         return $this->itemTypes[$protocol];
     }
 
@@ -89,14 +86,14 @@ class MultiVersionItemTypeDictionary{
         return $this->itemTypes;
     }
 
-    public function fromStringId(string $stringId, int $protocol = ProtocolInfo::CURRENT_PROTOCOL) : int{
+    public function fromStringId(string $stringId, int $protocol) : int{
         if(!array_key_exists($stringId, $this->stringToIntMap[$protocol])){
             throw new \InvalidArgumentException("Unmapped string ID \"$stringId\"");
         }
         return $this->stringToIntMap[$protocol][$stringId];
     }
 
-    public function fromIntId(int $intId, int $protocol = ProtocolInfo::CURRENT_PROTOCOL) : string{
+    public function fromIntId(int $intId, int $protocol) : string{
         if(!array_key_exists($intId, $this->intToStringIdMap[$protocol])){
             throw new \InvalidArgumentException("Unmapped int ID $intId");
         }

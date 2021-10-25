@@ -50,16 +50,18 @@ class EventListener implements Listener{
             if($packet->protocol === ProtocolInfo::CURRENT_PROTOCOL) {
                 return;
             }
+
+            $protocol = $packet->protocol;
+            $packet->protocol = ProtocolInfo::CURRENT_PROTOCOL;
+
             $reflection = new \ReflectionClass($player);
             $prop = $reflection->getProperty("sessionAdapter");
             $prop->setAccessible(true);
-            $prop->setValue($player, new MultiVersionSessionAdapter($player->getServer(), $player, $packet->protocol));
+            $prop->setValue($player, new MultiVersionSessionAdapter($player->getServer(), $player, $protocol));
 
-            SessionManager::create($player, $packet->protocol);
+            SessionManager::create($player, $protocol);
 
-            $packet = Translator::fromClient($packet, $packet->protocol, $player);
-
-            $packet->protocol = ProtocolInfo::CURRENT_PROTOCOL;
+            Translator::fromClient($packet, $protocol, $player);
         }
     }
 

@@ -29,7 +29,7 @@ class CompressTask extends AsyncTask{
         try{
             $this->setResult(zlib_encode($this->payload, 1024 * 1024 * 2));
         } catch(\Exception $e) {
-            $this->fail = $e;
+            $this->fail = true;
         }
     }
 
