@@ -34,7 +34,7 @@ class Utils{
             $reflection = new \ReflectionClass($object);
             $method = $reflection->getMethod($methodName);
             $method->setAccessible(true);
-            ($method->getClosure())(...$args);
+            ($method->getClosure($object))(...$args);
         } catch(ReflectionException $e) {
         }
     }
