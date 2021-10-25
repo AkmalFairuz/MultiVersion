@@ -21,7 +21,7 @@ class MultiVersionItemTypeDictionary{
     use SingletonTrait;
 
     /**
-     * @var ItemTypeEntry[]
+     * @var ItemTypeEntry[][]
      */
     private $itemTypes;
     /**
