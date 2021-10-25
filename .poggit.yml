@@ -1,0 +1,8 @@
+--- # Poggit-CI Manifest. Open the CI at https://poggit.pmmp.io/ci/AkmalFairuz/MultiVersion
+build-by-default: true
+branches:
+- master
+projects:
+  MultiVersion:
+    path: ""
+...
