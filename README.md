@@ -1,5 +1,7 @@
+## Allows older Minecraft client versions to connect to newer server versions.
+
 # MultiVersion
-A Backwards Multi Version plugin for PocketMine-MP (API3). This plugin is currently in development.
+A Multi Version plugin for PocketMine-MP (API3). This plugin is currently in development.
 
 ## Supported Versions
 - 1.17.30
