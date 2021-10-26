@@ -14,8 +14,6 @@ use pocketmine\item\ItemFactory;
 use pocketmine\nbt\LittleEndianNBTStream;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntTag;
-use pocketmine\network\mcpe\convert\ItemTranslator;
-use pocketmine\network\mcpe\convert\ItemTypeDictionary;
 use pocketmine\network\mcpe\NetworkBinaryStream;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\types\EntityLink;
@@ -25,7 +23,6 @@ use pocketmine\network\mcpe\protocol\types\PersonaSkinPiece;
 use pocketmine\network\mcpe\protocol\types\SkinAnimation;
 use pocketmine\network\mcpe\protocol\types\SkinData;
 use pocketmine\network\mcpe\protocol\types\SkinImage;
-use pocketmine\utils\BinaryStream;
 use function count;
 
 class Serializer{
@@ -237,6 +234,26 @@ class Serializer{
                 $out->putVarInt($stackId);
             }
         });
+    }
+
+    public static function putRecipeIngredient(NetworkBinaryStream $packet, Item $item, int $protocol) {
+        if($item->isNull()){
+            $packet->putVarInt(0);
+        }else{
+            if($item->hasAnyDamageValue()){
+                [$netId, ] = MultiVersionItemTranslator::getInstance()->toNetworkId($item->getId(), 0, $protocol);
+                $netData = 0x7fff;
+            }else{
+                [$netId, $netData] = MultiVersionItemTranslator::getInstance()->toNetworkId($item->getId(), $item->getDamage(), $protocol);
+            }
+            $packet->putVarInt($netId);
+            $packet->putVarInt($netData);
+            $packet->putVarInt($item->getCount());
+        }
+    }
+
+    public static function putItemStackWithoutStackId(NetworkBinaryStream $packet, Item $item, int $protocol) : void{
+        self::putItemStack($packet, $protocol, $item, function() : void{});
     }
 
     public static function getItemStack(DataPacket $packet, \Closure $readExtraCrapInTheMiddle, int $protocol) : Item{

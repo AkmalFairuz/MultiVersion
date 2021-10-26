@@ -10,10 +10,8 @@ use AkmalFairuz\MultiVersion\network\Serializer;
 use pocketmine\inventory\FurnaceRecipe;
 use pocketmine\inventory\ShapedRecipe;
 use pocketmine\inventory\ShapelessRecipe;
-use pocketmine\network\mcpe\convert\ItemTranslator;
 use pocketmine\network\mcpe\NetworkBinaryStream;
 use pocketmine\network\mcpe\protocol\CraftingDataPacket;
-use pocketmine\utils\BinaryStream;
 use function count;
 use function str_repeat;
 
@@ -88,7 +86,7 @@ class CraftingDataPacketTranslator{
         }
         $stream->putVarInt($netId);
         $stream->putVarInt($netData);
-        $stream->putItemStackWithoutStackId($recipe->getResult());
+        Serializer::putItemStackWithoutStackId($stream, $recipe->getResult(), $protocol);
         $stream->putString("furnace"); //TODO: blocktype (no prefix) (this might require internal API breaks)
         return CraftingDataPacket::ENTRY_FURNACE_DATA;
     }

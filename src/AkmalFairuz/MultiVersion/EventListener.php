@@ -100,7 +100,6 @@ class EventListener implements Listener{
             }
 
             $this->translateBatchPacketAndSend($packet, $player, $protocol);
-            $event->setCancelled();
         } else {
             if($packet->isEncoded){
                 $packet->decode();
@@ -109,8 +108,8 @@ class EventListener implements Listener{
             $this->cancel_send = true;
             $player->sendDataPacket($newPacket);
             $this->cancel_send = false;
-            $event->setCancelled();
         }
+        $event->setCancelled();
     }
 
     private function translateBatchPacketAndSend(BatchPacket $packet, Player $player, int $protocol) {
