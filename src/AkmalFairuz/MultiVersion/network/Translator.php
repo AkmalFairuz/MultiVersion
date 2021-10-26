@@ -82,7 +82,6 @@ class Translator{
     }
 
     public static function fromServer(DataPacket $packet, int $protocol, Player $player = null) : ?DataPacket {
-        echo $packet->getName() . "\n";
         $pid = $packet::NETWORK_ID;
         switch($pid) {
             case UpdateBlockPacket::NETWORK_ID:
