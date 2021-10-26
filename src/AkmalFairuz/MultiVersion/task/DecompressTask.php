@@ -8,7 +8,6 @@ use AkmalFairuz\MultiVersion\Loader;
 use pocketmine\network\mcpe\protocol\BatchPacket;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;
-use function var_dump;
 use function zlib_decode;
 
 class DecompressTask extends AsyncTask{
@@ -29,7 +28,6 @@ class DecompressTask extends AsyncTask{
         try{
             $this->setResult(zlib_decode($this->buffer, 1024 * 1024 * 2));
         } catch(\Exception $e) {
-            var_dump($e);
             $this->fail = true;
         }
     }
