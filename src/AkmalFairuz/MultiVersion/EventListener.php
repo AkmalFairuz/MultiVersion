@@ -25,6 +25,7 @@ use pocketmine\Player;
 use pocketmine\Server;
 use function get_class;
 use function in_array;
+use function strlen;
 
 class EventListener implements Listener{
 
@@ -88,7 +89,7 @@ class EventListener implements Listener{
         }
         if($packet instanceof BatchPacket) {
             if($packet->isEncoded){
-                if(Config::get("async_batch_decompression")) {
+                if(Config::get("async_batch_decompression") && strlen($packet->buffer) >= 256000) {
                     $task = new DecompressTask($packet, function(BatchPacket $packet) use ($player, $protocol) {
                         $this->translateBatchPacketAndSend($packet, $player, $protocol);
                     });
@@ -106,7 +107,10 @@ class EventListener implements Listener{
             }
             $newPacket = Translator::fromServer($packet, $protocol, $player);
             $this->cancel_send = true;
-            $player->sendDataPacket($newPacket);
+            $batch = new BatchPacket();
+            $batch->addPacket($newPacket);
+            $batch->encode();
+            $player->sendDataPacket($batch);
             $this->cancel_send = false;
         }
         $event->setCancelled();

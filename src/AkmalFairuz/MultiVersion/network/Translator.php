@@ -138,7 +138,13 @@ class Translator{
                 return $packet;
             case InventorySlotPacket::NETWORK_ID:
                 /** @var InventorySlotPacket $packet */
+                self::encodeHeader($packet);
                 InventorySlotPacketTranslator::serialize($packet, $protocol);
+                return $packet;
+            case InventoryTransactionPacket::NETWORK_ID:
+                /** @var InventoryTransactionPacket $packet */
+                self::encodeHeader($packet);
+                InventoryTransactionPacketTranslator::serialize($packet, $protocol);
                 return $packet;
         }
         return $packet;
