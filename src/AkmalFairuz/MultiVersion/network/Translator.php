@@ -17,7 +17,9 @@ use AkmalFairuz\MultiVersion\network\translator\MobEquipmentPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\PlayerListPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\PlayerSkinPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\StartGamePacketTranslator;
+use pocketmine\entity\Entity;
 use pocketmine\network\mcpe\convert\RuntimeBlockMapping;
+use pocketmine\network\mcpe\protocol\AddActorPacket;
 use pocketmine\network\mcpe\protocol\AddItemActorPacket;
 use pocketmine\network\mcpe\protocol\AddPlayerPacket;
 use pocketmine\network\mcpe\protocol\AnimateEntityPacket;
@@ -90,6 +92,17 @@ class Translator{
                     case LevelSoundEventPacket::SOUND_BREAK_BLOCK:
                         $block = RuntimeBlockMapping::fromStaticRuntimeId($packet->extraData);
                         $packet->extraData = MultiVersionRuntimeBlockMapping::toStaticRuntimeId($block[0], $block[1], $protocol);
+                        return $packet;
+                }
+                return $packet;
+            case AddActorPacket::NETWORK_ID:
+                /** @var AddActorPacket $packet */
+                switch($packet->type) {
+                    case "minecraft:falling_block":
+                        if(isset($packet->metadata[Entity::DATA_VARIANT])){
+                            $block = RuntimeBlockMapping::fromStaticRuntimeId($packet->metadata[Entity::DATA_VARIANT][1]);
+                            $packet->metadata[Entity::DATA_VARIANT] = [Entity::DATA_TYPE_INT, MultiVersionRuntimeBlockMapping::toStaticRuntimeId($block[0], $block[1], $protocol)];
+                        }
                         return $packet;
                 }
                 return $packet;
