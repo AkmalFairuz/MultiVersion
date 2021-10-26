@@ -9,6 +9,7 @@ use AkmalFairuz\MultiVersion\network\translator\AddItemActorPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\AddPlayerPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\AnimateEntityPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\CraftingDataPacketTranslator;
+use AkmalFairuz\MultiVersion\network\translator\CreativeContentPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\InventoryContentPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\InventorySlotPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\InventoryTransactionPacketTranslator;
@@ -24,6 +25,7 @@ use pocketmine\network\mcpe\protocol\AddItemActorPacket;
 use pocketmine\network\mcpe\protocol\AddPlayerPacket;
 use pocketmine\network\mcpe\protocol\AnimateEntityPacket;
 use pocketmine\network\mcpe\protocol\CraftingDataPacket;
+use pocketmine\network\mcpe\protocol\CreativeContentPacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\InventoryContentPacket;
 use pocketmine\network\mcpe\protocol\InventorySlotPacket;
@@ -183,6 +185,11 @@ class Translator{
                 /** @var InventoryTransactionPacket $packet */
                 self::encodeHeader($packet);
                 InventoryTransactionPacketTranslator::serialize($packet, $protocol);
+                return $packet;
+            case CreativeContentPacket::NETWORK_ID:
+                /** @var CreativeContentPacket $packet */
+                self::encodeHeader($packet);
+                CreativeContentPacketTranslator::serialize($packet, $protocol);
                 return $packet;
         }
         return $packet;
