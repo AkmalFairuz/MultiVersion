@@ -18,6 +18,7 @@ use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\network\mcpe\protocol\BatchPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\ModalFormRequestPacket;
+use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
 use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\mcpe\protocol\PacketViolationWarningPacket;
 use pocketmine\network\mcpe\protocol\PlayStatusPacket;
@@ -88,8 +89,8 @@ class EventListener implements Listener{
         if($protocol === null) {
             return;
         }
-        if($packet instanceof ModalFormRequestPacket) {
-            return; // fix form plugin not working.
+        if($packet instanceof ModalFormRequestPacket || $packet instanceof NetworkStackLatencyPacket) {
+            return; // fix form and invmenu plugins not working
         }
         if($packet instanceof BatchPacket) {
             if($packet->isEncoded){
