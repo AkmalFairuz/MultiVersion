@@ -5,4 +5,5 @@ branches:
 projects:
   MultiVersion:
     path: ""
+    icon: "resources/icon.png"
 ...
