@@ -34,13 +34,13 @@ class CraftingDataPacketTranslator{
         $stream->putString((\pack("N", $pos))); //some kind of recipe ID, doesn't matter what it is as long as it's unique
         $stream->putUnsignedVarInt($recipe->getIngredientCount());
         foreach($recipe->getIngredientList() as $item){
-            $stream->putRecipeIngredient($item);
+            Serializer::putRecipeIngredient($stream, $item, $protocol);
         }
 
         $results = $recipe->getResults();
         $stream->putUnsignedVarInt(count($results));
         foreach($results as $item){
-            Serializer::putItemStack($stream, $protocol, $item, function() {});
+            Serializer::putItemStackWithoutStackId($stream, $item, $protocol);
         }
 
         $stream->put(str_repeat("\x00", 16)); //Null UUID
@@ -58,14 +58,14 @@ class CraftingDataPacketTranslator{
 
         for($z = 0; $z < $recipe->getHeight(); ++$z){
             for($x = 0; $x < $recipe->getWidth(); ++$x){
-                $stream->putRecipeIngredient($recipe->getIngredient($x, $z));
+                Serializer::putRecipeIngredient($stream, $recipe->getIngredient($x, $z), $protocol);
             }
         }
 
         $results = $recipe->getResults();
         $stream->putUnsignedVarInt(count($results));
         foreach($results as $item){
-            Serializer::putItemStack($stream, $protocol, $item, function() {});
+            Serializer::putItemStackWithoutStackId($stream, $item, $protocol);
         }
 
         $stream->put(str_repeat("\x00", 16)); //Null UUID

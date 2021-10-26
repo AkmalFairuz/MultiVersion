@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AkmalFairuz\MultiVersion\network;
 
+use AkmalFairuz\MultiVersion\network\convert\MultiVersionItemTypeDictionary;
 use AkmalFairuz\MultiVersion\network\convert\MultiVersionRuntimeBlockMapping;
 use AkmalFairuz\MultiVersion\network\translator\AddItemActorPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\AddPlayerPacketTranslator;
@@ -40,10 +41,11 @@ use pocketmine\network\mcpe\protocol\PlayerSkinPacket;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
 use pocketmine\network\mcpe\protocol\UpdateBlockPacket;
 use pocketmine\Player;
+use function var_dump;
 
 class Translator{
 
-    public static function fromClient(DataPacket $packet, int $protocol, Player $player) : DataPacket{
+    public static function fromClient(DataPacket $packet, int $protocol, Player $player = null) : DataPacket{
         $pid = $packet::NETWORK_ID;
         switch($pid) {
             case LoginPacket::NETWORK_ID:
@@ -79,7 +81,8 @@ class Translator{
         return $packet;
     }
 
-    public static function fromServer(DataPacket $packet, int $protocol, Player $player) : ?DataPacket {
+    public static function fromServer(DataPacket $packet, int $protocol, Player $player = null) : ?DataPacket {
+        echo $packet->getName() . "\n";
         $pid = $packet::NETWORK_ID;
         switch($pid) {
             case UpdateBlockPacket::NETWORK_ID:
@@ -143,6 +146,7 @@ class Translator{
                 return $packet;
             case StartGamePacket::NETWORK_ID:
                 /** @var StartGamePacket $packet */
+                $packet->itemTable = MultiVersionItemTypeDictionary::getInstance()->getEntries($protocol);
                 self::encodeHeader($packet);
                 StartGamePacketTranslator::serialize($packet, $protocol);
                 return $packet;

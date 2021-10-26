@@ -16,6 +16,7 @@ use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\network\mcpe\protocol\BatchPacket;
+use pocketmine\network\mcpe\protocol\CraftingDataPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\ModalFormRequestPacket;
 use pocketmine\network\mcpe\protocol\NetworkStackLatencyPacket;
@@ -45,6 +46,11 @@ class EventListener implements Listener{
             Loader::getInstance()->getLogger()->info("PacketViolationWarningPacket packet=" . PacketPool::getPacketById($packet->getPacketId())->getName() . ",message=" . $packet->getMessage() . ",type=" . $packet->getType() . ",severity=" . $packet->getSeverity());
         }
         if($packet instanceof LoginPacket) {
+            if(!Loader::getInstance()->canJoin) {
+                $player->close("", "Trying to join the server before CraftingManager registered");
+                $event->setCancelled();
+                return;
+            }
             if(!in_array($packet->protocol, ProtocolConstants::SUPPORTED_PROTOCOLS, true)) {
                 $player->sendPlayStatus(PlayStatusPacket::LOGIN_FAILED_SERVER, true);
                 $player->close("", $player->getServer()->getLanguage()->translateString("pocketmine.disconnect.incompatibleProtocol", [$packet->protocol]), false);
@@ -125,6 +131,12 @@ class EventListener implements Listener{
         $newPacket = new BatchPacket();
         foreach($packet->getPackets() as $buf){
             $pk = PacketPool::getPacket($buf);
+            if($pk instanceof CraftingDataPacket) {
+                $this->cancel_send = true;
+                $player->sendDataPacket(Loader::getInstance()->craftingManager->getCraftingDataPacketA($protocol));
+                $this->cancel_send = false;
+                continue;
+            }
             $pk->decode();
             if(!$pk->canBeBatched()){
                 throw new \UnexpectedValueException("Received invalid " . get_class($pk) . " inside BatchPacket");
