@@ -99,10 +99,13 @@ class Translator{
                     case LevelEventPacket::EVENT_PARTICLE_DESTROY:
                         $block = RuntimeBlockMapping::fromStaticRuntimeId($packet->data);
                         $packet->data = MultiVersionRuntimeBlockMapping::toStaticRuntimeId($block[0], $block[1], $protocol);
-                        break;
+                        return $packet;
                     case LevelEventPacket::EVENT_PARTICLE_PUNCH_BLOCK:
                         $position = $packet->position;
                         $block = $player->getLevelNonNull()->getBlock($position);
+                        if($block->getId() === 0) {
+                            return null;
+                        }
                         $face = $packet->data & ~$block->getRuntimeId();
                         $packet->data = MultiVersionRuntimeBlockMapping::toStaticRuntimeId($block->getId(), $block->getDamage(), $protocol) | $face;
                         return $packet;
