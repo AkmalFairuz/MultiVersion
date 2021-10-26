@@ -17,6 +17,7 @@ use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\network\mcpe\protocol\BatchPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
+use pocketmine\network\mcpe\protocol\ModalFormRequestPacket;
 use pocketmine\network\mcpe\protocol\PacketPool;
 use pocketmine\network\mcpe\protocol\PacketViolationWarningPacket;
 use pocketmine\network\mcpe\protocol\PlayStatusPacket;
@@ -87,6 +88,9 @@ class EventListener implements Listener{
         if($protocol === null) {
             return;
         }
+        if($packet instanceof ModalFormRequestPacket) {
+            return; // fix form plugin not working.
+        }
         if($packet instanceof BatchPacket) {
             if($packet->isEncoded){
                 if(Config::get("async_batch_decompression") && strlen($packet->buffer) >= 256000) {
@@ -130,7 +134,7 @@ class EventListener implements Listener{
             }
             $newPacket->addPacket($translated);
         }
-        if(Config::get("async_batch_compression")){
+        if(Config::get("async_batch_compression") && strlen($newPacket->payload) >= 256000){
             $task = new CompressTask($newPacket, function(BatchPacket $packet) use ($player) {
                 $this->cancel_send = true;
                 $player->sendDataPacket($packet);
