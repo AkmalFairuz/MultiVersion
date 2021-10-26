@@ -27,6 +27,7 @@ use pocketmine\network\mcpe\protocol\InventoryContentPacket;
 use pocketmine\network\mcpe\protocol\InventorySlotPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\LevelEventPacket;
+use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\MobArmorEquipmentPacket;
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
@@ -59,6 +60,17 @@ class Translator{
                 self::decodeHeader($packet);
                 InventoryTransactionPacketTranslator::deserialize($packet, $protocol);
                 return $packet;
+            case LevelSoundEventPacket::NETWORK_ID:
+                /** @var LevelSoundEventPacket $packet */
+                $packet->decode();
+                switch($packet->sound) {
+                    case LevelSoundEventPacket::SOUND_PLACE:
+                    case LevelSoundEventPacket::SOUND_BREAK_BLOCK:
+                        $block = MultiVersionRuntimeBlockMapping::fromStaticRuntimeId($packet->extraData, $protocol);
+                        $packet->extraData = RuntimeBlockMapping::toStaticRuntimeId($block[0], $block[1]);
+                        return $packet;
+                }
+                return $packet;
         }
         return $packet;
     }
@@ -70,6 +82,16 @@ class Translator{
                 /** @var UpdateBlockPacket $packet */
                 $block = RuntimeBlockMapping::fromStaticRuntimeId($packet->blockRuntimeId);
                 $packet->blockRuntimeId = MultiVersionRuntimeBlockMapping::toStaticRuntimeId($block[0], $block[1], $protocol);
+                return $packet;
+            case LevelSoundEventPacket::NETWORK_ID:
+                /** @var LevelSoundEventPacket $packet */
+                switch($packet->sound) {
+                    case LevelSoundEventPacket::SOUND_PLACE:
+                    case LevelSoundEventPacket::SOUND_BREAK_BLOCK:
+                        $block = RuntimeBlockMapping::fromStaticRuntimeId($packet->extraData);
+                        $packet->extraData = MultiVersionRuntimeBlockMapping::toStaticRuntimeId($block[0], $block[1], $protocol);
+                        return $packet;
+                }
                 return $packet;
             case LevelEventPacket::NETWORK_ID:
                 /** @var LevelEventPacket $packet */
