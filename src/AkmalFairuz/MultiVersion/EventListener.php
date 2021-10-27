@@ -156,8 +156,8 @@ class EventListener implements Listener{
             Server::getInstance()->getAsyncPool()->submitTask($task);
             return;
         }
-
         $this->cancel_send = true;
+        $newPacket->encode();
         $player->sendDataPacket($newPacket);
         $this->cancel_send = false;
     }
