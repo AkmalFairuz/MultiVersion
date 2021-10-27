@@ -129,24 +129,23 @@ class EventListener implements Listener{
 
     private function translateBatchPacketAndSend(BatchPacket $packet, Player $player, int $protocol) {
         $newPacket = new BatchPacket();
-        foreach($packet->getPackets() as $buf){
-            $pk = PacketPool::getPacket($buf);
-            if($pk instanceof CraftingDataPacket) {
-                $this->cancel_send = true;
-                $player->sendDataPacket(Loader::getInstance()->craftingManager->getCraftingDataPacketA($protocol));
-                $this->cancel_send = false;
-                continue;
+        try{
+            foreach($packet->getPackets() as $buf){
+                $pk = PacketPool::getPacket($buf);
+                if($pk instanceof CraftingDataPacket){
+                    $this->cancel_send = true;
+                    $player->sendDataPacket(Loader::getInstance()->craftingManager->getCraftingDataPacketA($protocol));
+                    $this->cancel_send = false;
+                    continue;
+                }
+                $pk->decode();
+                $translated = Translator::fromServer($pk, $protocol, $player);
+                if($translated === null){
+                    continue;
+                }
+                $newPacket->addPacket($translated);
             }
-            $pk->decode();
-            if(!$pk->canBeBatched()){
-                throw new \UnexpectedValueException("Received invalid " . get_class($pk) . " inside BatchPacket");
-            }
-            $translated = Translator::fromServer($pk, $protocol, $player);
-            if($translated === null) {
-                continue;
-            }
-            $newPacket->addPacket($translated);
-        }
+        } catch(\UnexpectedValueException $e) {}
         if(Config::get("async_batch_compression") && strlen($newPacket->payload) >= 256000){
             $task = new CompressTask($newPacket, function(BatchPacket $packet) use ($player) {
                 $this->cancel_send = true;
