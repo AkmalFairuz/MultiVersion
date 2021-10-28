@@ -60,11 +60,7 @@ class MultiVersionRuntimeBlockMapping{
 
         /** @var R12ToCurrentBlockMapEntry[] $legacyStateMap */
         $legacyStateMap = [];
-        if($protocol === ProtocolConstants::BEDROCK_1_17_0) {
-            $suffix = self::PROTOCOL[ProtocolConstants::BEDROCK_1_17_10];
-        } else {
-            $suffix = self::PROTOCOL[$protocol];
-        }
+        $suffix = self::PROTOCOL[$protocol];
         $path = Loader::$resourcesPath . "vanilla/r12_to_current_block_map".$suffix.".bin";
         $legacyStateMapReader = new NetworkBinaryStream(file_get_contents($path));
         $nbtReader = new NetworkLittleEndianNBTStream();
