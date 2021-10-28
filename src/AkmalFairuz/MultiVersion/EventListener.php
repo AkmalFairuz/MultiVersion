@@ -50,7 +50,7 @@ class EventListener implements Listener{
                 $event->setCancelled();
                 return;
             }
-            if(!in_array($packet->protocol, ProtocolConstants::SUPPORTED_PROTOCOLS, true)) {
+            if(!in_array($packet->protocol, ProtocolConstants::SUPPORTED_PROTOCOLS, true) || Loader::getInstance()->isProtocolDisabled($packet->protocol)) {
                 $player->sendPlayStatus(PlayStatusPacket::LOGIN_FAILED_SERVER, true);
                 $player->close("", $player->getServer()->getLanguage()->translateString("pocketmine.disconnect.incompatibleProtocol", [$packet->protocol]), false);
                 $event->setCancelled();

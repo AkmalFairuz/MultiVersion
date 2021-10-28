@@ -37,6 +37,9 @@ class MultiVersionRuntimeBlockMapping{
 
     public static function init() : void{
         foreach(self::PROTOCOL as $protocol => $fileName){
+            if(Loader::getInstance()->isProtocolDisabled($protocol)) {
+                continue;
+            }
             $canonicalBlockStatesFile = file_get_contents(Loader::$resourcesPath . "vanilla/canonical_block_states".$fileName.".nbt");
             if($canonicalBlockStatesFile === false){
                 throw new AssumptionFailedError("Missing required resource file");

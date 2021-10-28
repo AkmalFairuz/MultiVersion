@@ -43,6 +43,9 @@ class MultiVersionItemTypeDictionary{
     private static function make() : self{
         $itemTypes = [];
         foreach(self::PROTOCOL as $protocol => $file){
+            if(Loader::getInstance()->isProtocolDisabled($protocol)) {
+                continue;
+            }
             $data = file_get_contents(Loader::$resourcesPath . 'vanilla/required_item_list'.$file.'.json');
             if($data === false) throw new AssumptionFailedError("Missing required resource file");
             $table = json_decode($data, true);

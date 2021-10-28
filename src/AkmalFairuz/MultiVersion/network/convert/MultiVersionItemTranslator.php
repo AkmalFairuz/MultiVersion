@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AkmalFairuz\MultiVersion\network\convert;
 
+use AkmalFairuz\MultiVersion\Loader;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\SingletonTrait;
@@ -97,6 +98,9 @@ class MultiVersionItemTranslator{
      */
     public function __construct(MultiVersionItemTypeDictionary $dictionary, array $simpleMappings, array $complexMappings){
         foreach($dictionary->getAllEntries() as $protocol => $entries){
+            if(Loader::getInstance()->isProtocolDisabled($protocol)) {
+                continue;
+            }
             foreach($entries as $entry){
                 $stringId = $entry->getStringId();
                 $netId = $entry->getNumericId();

@@ -9,6 +9,7 @@ use AkmalFairuz\MultiVersion\network\convert\MultiVersionRuntimeBlockMapping;
 use pocketmine\inventory\CraftingManager;
 use pocketmine\plugin\PluginBase;
 use pocketmine\scheduler\ClosureTask;
+use function in_array;
 
 class Loader extends PluginBase{
 
@@ -47,5 +48,10 @@ class Loader extends PluginBase{
         }), 1);
 
         $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
+    }
+
+    public function isProtocolDisabled(int $protocol): bool{
+        $config = Config::get("disabled_protocols") ?? [];
+        return in_array($protocol, $config);
     }
 }

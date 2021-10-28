@@ -1,3 +1,7 @@
 # If async compression/decompression enabled packet will be delayed 1-2 tick and reduce lag in the main thread.
 async_batch_decompression: true
 async_batch_compress: true
+
+# example=
+#   disabled_protocols: [448, 440]
+disabled_protocols: []
