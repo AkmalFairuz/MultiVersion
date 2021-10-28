@@ -218,6 +218,7 @@ class Translator{
                 return $packet;
             case ResourcePacksInfoPacket::NETWORK_ID:
                 /** @var ResourcePacksInfoPacket $packet */
+                self::encodeHeader($packet);
                 ResourcePacksInfoPacketTranslator::serialize($packet, $protocol);
                 return $packet;
         }
