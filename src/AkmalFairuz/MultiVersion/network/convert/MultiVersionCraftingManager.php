@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AkmalFairuz\MultiVersion\network\convert;
 
+use AkmalFairuz\MultiVersion\Loader;
 use AkmalFairuz\MultiVersion\network\ProtocolConstants;
 use AkmalFairuz\MultiVersion\network\Translator;
 use pocketmine\inventory\CraftingManager;
@@ -19,14 +20,17 @@ class MultiVersionCraftingManager extends CraftingManager{
 
     const PROTOCOL = [
         ProtocolConstants::BEDROCK_1_17_30,
-        ProtocolConstants::BEDROCK_1_17_10
+        ProtocolConstants::BEDROCK_1_17_10,
+        ProtocolConstants::BEDROCK_1_17_0
     ];
 
     public function buildCraftingDataCache(): void{
         Timings::$craftingDataCacheRebuildTimer->startTiming();
         $c = Server::getInstance()->getCraftingManager();
         foreach(self::PROTOCOL as $protocol){
-
+            if(Loader::getInstance()->isProtocolDisabled($protocol)) {
+                continue;
+            }
             $pk = new CraftingDataPacket();
             $pk->cleanRecipes = true;
 

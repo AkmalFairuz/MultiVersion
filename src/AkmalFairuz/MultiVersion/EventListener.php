@@ -26,7 +26,6 @@ use pocketmine\network\mcpe\protocol\PlayStatusPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\Player;
 use pocketmine\Server;
-use function get_class;
 use function in_array;
 use function strlen;
 
@@ -51,7 +50,7 @@ class EventListener implements Listener{
                 $event->setCancelled();
                 return;
             }
-            if(!in_array($packet->protocol, ProtocolConstants::SUPPORTED_PROTOCOLS, true)) {
+            if(!in_array($packet->protocol, ProtocolConstants::SUPPORTED_PROTOCOLS, true) || Loader::getInstance()->isProtocolDisabled($packet->protocol)) {
                 $player->sendPlayStatus(PlayStatusPacket::LOGIN_FAILED_SERVER, true);
                 $player->close("", $player->getServer()->getLanguage()->translateString("pocketmine.disconnect.incompatibleProtocol", [$packet->protocol]), false);
                 $event->setCancelled();
@@ -116,7 +115,11 @@ class EventListener implements Listener{
             if($packet->isEncoded){
                 $packet->decode();
             }
-            $newPacket = Translator::fromServer($packet, $protocol, $player);
+            $translated = true;
+            $newPacket = Translator::fromServer($packet, $protocol, $player, $translated);
+            if(!$translated) {
+                return;
+            }
             $this->cancel_send = true;
             $batch = new BatchPacket();
             $batch->addPacket($newPacket);

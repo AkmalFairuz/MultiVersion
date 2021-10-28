@@ -9,6 +9,7 @@ use AkmalFairuz\MultiVersion\network\convert\MultiVersionRuntimeBlockMapping;
 use AkmalFairuz\MultiVersion\network\translator\AddItemActorPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\AddPlayerPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\AnimateEntityPacketTranslator;
+use AkmalFairuz\MultiVersion\network\translator\AvailableCommandsPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\CraftingDataPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\CreativeContentPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\InventoryContentPacketTranslator;
@@ -16,8 +17,11 @@ use AkmalFairuz\MultiVersion\network\translator\InventorySlotPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\InventoryTransactionPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\MobArmorEquipmentPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\MobEquipmentPacketTranslator;
+use AkmalFairuz\MultiVersion\network\translator\NpcRequestPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\PlayerListPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\PlayerSkinPacketTranslator;
+use AkmalFairuz\MultiVersion\network\translator\ResourcePacksInfoPacketTranslator;
+use AkmalFairuz\MultiVersion\network\translator\SetTitlePacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\StartGamePacketTranslator;
 use pocketmine\entity\Entity;
 use pocketmine\network\mcpe\convert\RuntimeBlockMapping;
@@ -25,6 +29,7 @@ use pocketmine\network\mcpe\protocol\AddActorPacket;
 use pocketmine\network\mcpe\protocol\AddItemActorPacket;
 use pocketmine\network\mcpe\protocol\AddPlayerPacket;
 use pocketmine\network\mcpe\protocol\AnimateEntityPacket;
+use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
 use pocketmine\network\mcpe\protocol\CraftingDataPacket;
 use pocketmine\network\mcpe\protocol\CreativeContentPacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
@@ -36,8 +41,11 @@ use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
 use pocketmine\network\mcpe\protocol\MobArmorEquipmentPacket;
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
+use pocketmine\network\mcpe\protocol\NpcRequestPacket;
 use pocketmine\network\mcpe\protocol\PlayerListPacket;
 use pocketmine\network\mcpe\protocol\PlayerSkinPacket;
+use pocketmine\network\mcpe\protocol\ResourcePacksInfoPacket;
+use pocketmine\network\mcpe\protocol\SetTitlePacket;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
 use pocketmine\network\mcpe\protocol\UpdateBlockPacket;
 use pocketmine\Player;
@@ -57,7 +65,7 @@ class Translator{
                 /** @var PlayerSkinPacket $packet */
                 if($protocol < ProtocolConstants::BEDROCK_1_17_30) {
                     self::decodeHeader($packet);
-                    PlayerSkinPacketTranslator::unserialize($packet, $protocol);
+                    PlayerSkinPacketTranslator::deserialize($packet, $protocol);
                 }
                 return $packet;
             case InventoryTransactionPacket::NETWORK_ID:
@@ -76,11 +84,16 @@ class Translator{
                         return $packet;
                 }
                 return $packet;
+            case NpcRequestPacket::NETWORK_ID:
+                /** @var NpcRequestPacket $packet */
+                self::decodeHeader($packet);
+                NpcRequestPacketTranslator::deserialize($packet, $protocol);
+                return $packet;
         }
         return $packet;
     }
 
-    public static function fromServer(DataPacket $packet, int $protocol, Player $player = null) : ?DataPacket {
+    public static function fromServer(DataPacket $packet, int $protocol, Player $player = null, bool &$translated = true) : ?DataPacket {
         $pid = $packet::NETWORK_ID;
         switch($pid) {
             case UpdateBlockPacket::NETWORK_ID:
@@ -193,7 +206,23 @@ class Translator{
                 self::encodeHeader($packet);
                 CreativeContentPacketTranslator::serialize($packet, $protocol);
                 return $packet;
+            case AvailableCommandsPacket::NETWORK_ID:
+                /** @var AvailableCommandsPacket $packet */
+                self::encodeHeader($packet);
+                AvailableCommandsPacketTranslator::serialize($packet, $protocol);
+                return $packet;
+            case SetTitlePacket::NETWORK_ID:
+                /** @var SetTitlePacket $packet */
+                self::encodeHeader($packet);
+                SetTitlePacketTranslator::serialize($packet, $protocol);
+                return $packet;
+            case ResourcePacksInfoPacket::NETWORK_ID:
+                /** @var ResourcePacksInfoPacket $packet */
+                self::encodeHeader($packet);
+                ResourcePacksInfoPacketTranslator::serialize($packet, $protocol);
+                return $packet;
         }
+        $translated = false;
         return $packet;
     }
 
