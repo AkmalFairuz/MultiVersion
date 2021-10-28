@@ -115,7 +115,11 @@ class EventListener implements Listener{
             if($packet->isEncoded){
                 $packet->decode();
             }
-            $newPacket = Translator::fromServer($packet, $protocol, $player);
+            $translated = true;
+            $newPacket = Translator::fromServer($packet, $protocol, $player, $translated);
+            if(!$translated) {
+                return;
+            }
             $this->cancel_send = true;
             $batch = new BatchPacket();
             $batch->addPacket($newPacket);

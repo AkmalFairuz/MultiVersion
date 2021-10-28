@@ -35,6 +35,7 @@ class MultiVersionItemTypeDictionary{
     private $stringToIntMap = [];
 
     const PROTOCOL = [
+        ProtocolConstants::BEDROCK_1_17_0 => "_1_17_0",
         ProtocolConstants::BEDROCK_1_17_10 => "_1_17_10",
         ProtocolConstants::BEDROCK_1_17_30 => "_1_17_30"
     ];
