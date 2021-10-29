@@ -17,6 +17,7 @@ use pocketmine\nbt\tag\IntTag;
 use pocketmine\network\mcpe\NetworkBinaryStream;
 use pocketmine\network\mcpe\protocol\DataPacket;
 use pocketmine\network\mcpe\protocol\types\EntityLink;
+use pocketmine\network\mcpe\protocol\types\GameRuleType;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStackWrapper;
 use pocketmine\network\mcpe\protocol\types\PersonaPieceTintColor;
 use pocketmine\network\mcpe\protocol\types\PersonaSkinPiece;
@@ -353,6 +354,28 @@ class Serializer{
         ($packet->buffer .= \chr($link->type));
         ($packet->buffer .= ($link->immediate ? "\x01" : "\x00"));
         ($packet->buffer .= ($link->causedByRider ? "\x01" : "\x00"));
+    }
+
+    public static function putGameRules(DataPacket $packet, array $rules, int $protocol){
+        $packet->putUnsignedVarInt(count($rules));
+        foreach($rules as $name => $rule){
+            $packet->putString($name);
+            if($protocol >= ProtocolConstants::BEDROCK_1_17_0){
+                $packet->putBool($rule[2]);
+            }
+            $packet->putUnsignedVarInt($rule[0]);
+            switch($rule[0]){
+                case GameRuleType::BOOL:
+                    $packet->putBool($rule[1]);
+                    break;
+                case GameRuleType::INT:
+                    $packet->putUnsignedVarInt($rule[1]);
+                    break;
+                case GameRuleType::FLOAT:
+                    $packet->putLFloat($rule[1]);
+                    break;
+            }
+        }
     }
 
 }

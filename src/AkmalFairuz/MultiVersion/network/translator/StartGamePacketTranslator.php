@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AkmalFairuz\MultiVersion\network\translator;
 
 use AkmalFairuz\MultiVersion\network\ProtocolConstants;
+use AkmalFairuz\MultiVersion\network\Serializer;
 use pocketmine\nbt\NetworkLittleEndianNBTStream;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
 use function count;
@@ -42,7 +43,7 @@ class StartGamePacketTranslator {
         $packet->putVarInt($packet->platformBroadcastMode);
         ($packet->buffer .= ($packet->commandsEnabled ? "\x01" : "\x00"));
         ($packet->buffer .= ($packet->isTexturePacksRequired ? "\x01" : "\x00"));
-        $packet->putGameRules($packet->gameRules);
+        Serializer::putGameRules($packet, $packet->gameRules, $protocol);
         $packet->experiments->write($packet);
         ($packet->buffer .= ($packet->hasBonusChestEnabled ? "\x01" : "\x00"));
         ($packet->buffer .= ($packet->hasStartWithMapEnabled ? "\x01" : "\x00"));
@@ -92,6 +93,8 @@ class StartGamePacketTranslator {
 
         $packet->putString($packet->multiplayerCorrelationId);
         ($packet->buffer .= ($packet->enableNewInventorySystem ? "\x01" : "\x00"));
-        $packet->putString($packet->serverSoftwareVersion);
+        if($protocol >= ProtocolConstants::BEDROCK_1_17_0){
+            $packet->putString($packet->serverSoftwareVersion);
+        }
     }
 }
