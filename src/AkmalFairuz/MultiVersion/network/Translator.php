@@ -12,6 +12,7 @@ use AkmalFairuz\MultiVersion\network\translator\AnimateEntityPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\AvailableCommandsPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\CraftingDataPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\CreativeContentPacketTranslator;
+use AkmalFairuz\MultiVersion\network\translator\GameRulesChangedPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\InventoryContentPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\InventorySlotPacketTranslator;
 use AkmalFairuz\MultiVersion\network\translator\InventoryTransactionPacketTranslator;
@@ -33,6 +34,7 @@ use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
 use pocketmine\network\mcpe\protocol\CraftingDataPacket;
 use pocketmine\network\mcpe\protocol\CreativeContentPacket;
 use pocketmine\network\mcpe\protocol\DataPacket;
+use pocketmine\network\mcpe\protocol\GameRulesChangedPacket;
 use pocketmine\network\mcpe\protocol\InventoryContentPacket;
 use pocketmine\network\mcpe\protocol\InventorySlotPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
@@ -220,6 +222,10 @@ class Translator{
                 /** @var ResourcePacksInfoPacket $packet */
                 self::encodeHeader($packet);
                 ResourcePacksInfoPacketTranslator::serialize($packet, $protocol);
+                return $packet;
+            case GameRulesChangedPacket::NETWORK_ID:
+                /** @var GameRulesChangedPacket $packet */
+                GameRulesChangedPacketTranslator::serialize($packet, $protocol);
                 return $packet;
         }
         $translated = false;

@@ -4,6 +4,7 @@
 A Multi Version plugin for PocketMine-MP (API3). This plugin is currently in development.
 
 ## Supported Versions
+- 1.16.220
 - 1.17.0
 - 1.17.10
 - 1.17.30
