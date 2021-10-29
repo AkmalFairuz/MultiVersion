@@ -21,7 +21,8 @@ class MultiVersionCraftingManager extends CraftingManager{
     const PROTOCOL = [
         ProtocolConstants::BEDROCK_1_17_30,
         ProtocolConstants::BEDROCK_1_17_10,
-        ProtocolConstants::BEDROCK_1_17_0
+        ProtocolConstants::BEDROCK_1_17_0,
+        ProtocolConstants::BEDROCK_1_16_220
     ];
 
     public function buildCraftingDataCache(): void{

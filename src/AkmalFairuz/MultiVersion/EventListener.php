@@ -36,7 +36,7 @@ class EventListener implements Listener{
 
     /**
      * @throws \ReflectionException
-     * @priority NORMAL
+     * @priority LOWEST
      */
     public function onDataPacketReceive(DataPacketReceiveEvent $event) {
         $player = $event->getPlayer();
@@ -73,7 +73,7 @@ class EventListener implements Listener{
 
     /**
      * @param PlayerQuitEvent $event
-     * @priority NORMAL
+     * @priority HIGHEST
      */
     public function onPlayerQuit(PlayerQuitEvent $event) {
         SessionManager::remove($event->getPlayer());
