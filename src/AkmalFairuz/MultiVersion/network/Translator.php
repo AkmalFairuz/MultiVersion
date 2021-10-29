@@ -91,6 +91,16 @@ class Translator{
                 self::decodeHeader($packet);
                 NpcRequestPacketTranslator::deserialize($packet, $protocol);
                 return $packet;
+            case MobEquipmentPacket::NETWORK_ID:
+                /** @var MobEquipmentPacket $packet */
+                self::decodeHeader($packet);
+                MobEquipmentPacketTranslator::deserialize($packet, $protocol);
+                return $packet;
+            case MobArmorEquipmentPacket::NETWORK_ID:
+                /** @var MobArmorEquipmentPacket $packet */
+                self::decodeHeader($packet);
+                MobArmorEquipmentPacketTranslator::deserialize($packet, $protocol);
+                return $packet;
         }
         return $packet;
     }
@@ -225,6 +235,7 @@ class Translator{
                 return $packet;
             case GameRulesChangedPacket::NETWORK_ID:
                 /** @var GameRulesChangedPacket $packet */
+                self::encodeHeader($packet);
                 GameRulesChangedPacketTranslator::serialize($packet, $protocol);
                 return $packet;
         }

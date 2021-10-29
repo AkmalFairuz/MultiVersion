@@ -16,4 +16,12 @@ class MobEquipmentPacketTranslator{
         ($packet->buffer .= \chr($packet->hotbarSlot));
         ($packet->buffer .= \chr($packet->windowId));
     }
+
+    public static function deserialize(MobEquipmentPacket $packet, int $protocol) {
+        $packet->entityRuntimeId = $packet->getEntityRuntimeId();
+        $packet->item = Serializer::getItemStackWrapper($packet, $protocol);
+        $packet->inventorySlot = (\ord($packet->get(1)));
+        $packet->hotbarSlot = (\ord($packet->get(1)));
+        $packet->windowId = (\ord($packet->get(1)));
+    }
 }
