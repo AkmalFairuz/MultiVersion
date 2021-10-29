@@ -139,7 +139,10 @@ class MultiVersionRuntimeBlockMapping{
      */
     public static function fromStaticRuntimeId(int $runtimeId, int $protocol) : array{
         self::lazyInit();
-        $v = self::$runtimeToLegacyMap[$protocol][$runtimeId] ?? self::$runtimeToLegacyMap[$protocol][BlockIds::INFO_UPDATE << 4];
+        $v = self::$runtimeToLegacyMap[$protocol][$runtimeId] ?? null;
+        if($v === null) {
+            return [0, 0];
+        }
         return [$v >> 4, $v & 0xf];
     }
 

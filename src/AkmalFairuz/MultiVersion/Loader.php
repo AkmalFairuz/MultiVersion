@@ -6,6 +6,7 @@ namespace AkmalFairuz\MultiVersion;
 
 use AkmalFairuz\MultiVersion\network\convert\MultiVersionCraftingManager;
 use AkmalFairuz\MultiVersion\network\convert\MultiVersionRuntimeBlockMapping;
+use AkmalFairuz\MultiVersion\task\CheckUpdateTask;
 use pocketmine\inventory\CraftingManager;
 use pocketmine\plugin\PluginBase;
 use pocketmine\scheduler\ClosureTask;
@@ -48,6 +49,8 @@ class Loader extends PluginBase{
         }), 1);
 
         $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
+
+        CheckUpdateTask::init($this->getDescription()->getVersion());
     }
 
     public function isProtocolDisabled(int $protocol): bool{
