@@ -12,6 +12,7 @@ use pocketmine\item\Durable;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use pocketmine\nbt\LittleEndianNBTStream;
+use pocketmine\nbt\NetworkLittleEndianNBTStream;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\nbt\tag\IntTag;
 use pocketmine\network\mcpe\NetworkBinaryStream;
@@ -156,9 +157,12 @@ class Serializer{
     }
 
     public static function putItemStack(NetworkBinaryStream $packet, int $protocol, Item $item, callable $writeExtraCrapInTheMiddle) {
+        if($protocol < ProtocolConstants::BEDROCK_1_16_220) {
+            self::putSlot($packet, $item, $protocol);
+            return;
+        }
         if($item->getId() === 0){
             $packet->putVarInt(0);
-
             return;
         }
 
@@ -258,6 +262,9 @@ class Serializer{
     }
 
     public static function getItemStack(DataPacket $packet, \Closure $readExtraCrapInTheMiddle, int $protocol) : Item{
+        if($protocol < ProtocolConstants::BEDROCK_1_16_220) {
+            return self::getSlot($packet, $protocol);
+        }
         $netId = $packet->getVarInt();
         if($netId === 0){
             return ItemFactory::get(0, 0, 0);
@@ -376,6 +383,111 @@ class Serializer{
                     break;
             }
         }
+    }
+
+    private static function putSlot(NetworkBinaryStream $packet, Item $item, int $protocol) {
+        if($item->getId() === 0){
+            $packet->putVarInt(0);
+
+            return;
+        }
+
+        [$netId, $netData] = MultiVersionItemTranslator::getInstance()->toNetworkId($item->getId(), $item->getDamage(), $protocol);
+
+        $packet->putVarInt($netId);
+        $auxValue = (($netData & 0x7fff) << 8) | $item->getCount();
+        $packet->putVarInt($auxValue);
+
+        $nbt = null;
+        if($item->hasCompoundTag()){
+            $nbt = clone $item->getNamedTag();
+        }
+        if($item instanceof Durable and $item->getDamage() > 0){
+            if($nbt !== null){
+                if(($existing = $nbt->getTag("Damage")) !== null){
+                    $nbt->removeTag("Damage");
+                    $existing->setName("___Damage_ProtocolCollisionResolution___");
+                    $nbt->setTag($existing);
+                }
+            }else{
+                $nbt = new CompoundTag();
+            }
+            $nbt->setInt("Damage", $item->getDamage());
+        }
+
+        if($nbt !== null){
+            $packet->putLShort(0xffff);
+            $packet->putByte(1); //TODO: NBT data version (?)
+            $packet->put((new NetworkLittleEndianNBTStream())->write($nbt));
+        }else{
+            $packet->putLShort(0);
+        }
+
+        $packet->putVarInt(0); //CanPlaceOn entry count (TODO)
+        $packet->putVarInt(0); //CanDestroy entry count (TODO)
+
+        if($netId === MultiVersionItemTypeDictionary::getInstance()->fromStringId("minecraft:shield", $protocol)){
+            $packet->putVarLong(0); //"blocking tick" (ffs mojang)
+        }
+    }
+
+    private static function getSlot(NetworkBinaryStream $packet, int $protocol) {
+        $netId = $packet->getVarInt();
+        if($netId === 0){
+            return ItemFactory::get(0, 0, 0);
+        }
+
+        $auxValue = $packet->getVarInt();
+        $netData = $auxValue >> 8;
+        $cnt = $auxValue & 0xff;
+
+        [$id, $meta] = MultiVersionItemTranslator::getInstance()->fromNetworkId($netId, $netData, $null, $protocol);
+
+        $nbtLen = $packet->getLShort();
+
+        /** @var CompoundTag|null $nbt */
+        $nbt = null;
+        if($nbtLen === 0xffff){
+            $nbtDataVersion = $packet->getByte();
+            if($nbtDataVersion !== 1){
+                throw new \UnexpectedValueException("Unexpected NBT data version $nbtDataVersion");
+            }
+            $decodedNBT = (new NetworkLittleEndianNBTStream())->read($packet->buffer, false, $packet->offset, 512);
+            if(!($decodedNBT instanceof CompoundTag)){
+                throw new \UnexpectedValueException("Unexpected root tag type for itemstack");
+            }
+            $nbt = $decodedNBT;
+        }elseif($nbtLen !== 0){
+            throw new \UnexpectedValueException("Unexpected fake NBT length $nbtLen");
+        }
+
+        //TODO
+        for($i = 0, $canPlaceOn = $packet->getVarInt(); $i < $canPlaceOn; ++$i){
+            $packet->getString();
+        }
+
+        //TODO
+        for($i = 0, $canDestroy = $packet->getVarInt(); $i < $canDestroy; ++$i){
+            $packet->getString();
+        }
+
+        if($netId === MultiVersionItemTranslator::getInstance()->fromStringId("minecraft:shield", $protocol)){
+            $packet->getVarLong(); //"blocking tick" (ffs mojang)
+        }
+        if($nbt !== null){
+            if($nbt->hasTag("Damage", IntTag::class)){
+                $meta = $nbt->getInt("Damage");
+                $nbt->removeTag("Damage");
+                if(($conflicted = $nbt->getTag("___Damage_ProtocolCollisionResolution___")) !== null){
+                    $nbt->removeTag("___Damage_ProtocolCollisionResolution___");
+                    $conflicted->setName("Damage");
+                    $nbt->setTag($conflicted);
+                }elseif($nbt->count() === 0){
+                    $nbt = null;
+                }
+            }
+        }
+        return ItemFactory::get($id, $meta, $cnt, $nbt);
     }
 
 }

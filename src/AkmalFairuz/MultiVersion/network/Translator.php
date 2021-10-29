@@ -225,6 +225,7 @@ class Translator{
                 return $packet;
             case GameRulesChangedPacket::NETWORK_ID:
                 /** @var GameRulesChangedPacket $packet */
+                self::encodeHeader($packet);
                 GameRulesChangedPacketTranslator::serialize($packet, $protocol);
                 return $packet;
         }
