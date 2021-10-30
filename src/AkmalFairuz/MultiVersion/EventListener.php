@@ -99,7 +99,7 @@ class EventListener implements Listener{
         }
         if($packet instanceof BatchPacket) {
             if($packet->isEncoded){
-                if(Config::get("async_batch_decompression") && strlen($packet->buffer) >= 1024) {
+                if(Config::$ASYNC_BATCH_DECOMPRESSION && strlen($packet->buffer) >= Config::$ASYNC_BATCH_THRESHOLD) {
                     $task = new DecompressTask($packet, function(BatchPacket $packet) use ($player, $protocol) {
                         $this->translateBatchPacketAndSend($packet, $player, $protocol);
                     });
@@ -154,7 +154,7 @@ class EventListener implements Listener{
                 $newPacket->addPacket($translated);
             }
         } catch(\UnexpectedValueException $e) {}
-        if(Config::get("async_batch_compression") && strlen($newPacket->payload) >= 1024){
+        if(Config::$ASYNC_BATCH_COMPRESSION && strlen($newPacket->payload) >= Config::$ASYNC_BATCH_THRESHOLD){
             $task = new CompressTask($newPacket, function(BatchPacket $packet) use ($player) {
                 $this->cancel_send = true;
                 $player->sendDataPacket($packet);

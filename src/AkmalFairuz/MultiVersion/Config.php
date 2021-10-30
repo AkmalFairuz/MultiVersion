@@ -8,13 +8,16 @@ use function yaml_parse_file;
 
 class Config{
 
-    private static $config = [];
+    public static $ASYNC_BATCH_COMPRESSION;
+    public static $ASYNC_BATCH_DECOMPRESSION;
+    public static $ASYNC_BATCH_THRESHOLD;
+    public static $DISABLED_PROTOCOLS;
 
     public static function init(string $path) {
-        self::$config = yaml_parse_file($path);
-    }
-
-    public static function get(string $key) {
-        return self::$config[$key] ?? null;
+        $cfg = yaml_parse_file($path);
+        self::$ASYNC_BATCH_COMPRESSION = $cfg["async_batch_compression"] ?? true;
+        self::$ASYNC_BATCH_DECOMPRESSION = $cfg["async_batch_decompression"] ?? true;
+        self::$ASYNC_BATCH_THRESHOLD = $cfg["async_batch_threshold"] ?? 1024;
+        self::$DISABLED_PROTOCOLS = $cfg["disabled_protocols"] ?? [];
     }
 }

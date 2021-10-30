@@ -54,7 +54,7 @@ class Loader extends PluginBase{
     }
 
     public function isProtocolDisabled(int $protocol): bool{
-        $config = Config::get("disabled_protocols") ?? [];
+        $config = Config::$DISABLED_PROTOCOLS;
         return in_array($protocol, $config, true);
     }
 }

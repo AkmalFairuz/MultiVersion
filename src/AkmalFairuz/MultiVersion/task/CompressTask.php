@@ -10,6 +10,7 @@ use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;
 use function chr;
 use function zlib_encode;
+use const ZLIB_ENCODING_GZIP;
 
 class CompressTask extends AsyncTask{
 
@@ -31,7 +32,7 @@ class CompressTask extends AsyncTask{
 
     public function onRun(){
         try{
-            $this->setResult(zlib_encode($this->payload, 1024 * 1024 * 2, $this->level));
+            $this->setResult(zlib_encode($this->payload, ZLIB_ENCODING_RAW, $this->level));
         } catch(\Exception $e) {
             $this->fail = true;
         }

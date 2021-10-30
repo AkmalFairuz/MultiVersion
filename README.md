@@ -1,6 +1,6 @@
 ## Allows older Minecraft client versions to connect to newer server versions.
 
-# MultiVersion [![](https://poggit.pmmp.io/shield.dl.total/MultiVersion)](https://poggit.pmmp.io/p/MultiVersion) [![](https://poggit.pmmp.io/shield.api/MultiVersion)](https://poggit.pmmp.io/p/MultiVersion) [![Discord](https://img.shields.io/discord/902113901712379945?color=7389D8&label=discord)](https://discord.gg/NGsNaj54d6)
+# MultiVersion [![](https://poggit.pmmp.io/shield.dl.total/MultiVersion)](https://poggit.pmmp.io/p/MultiVersion) [![](https://poggit.pmmp.io/shield.api/MultiVersion)](https://poggit.pmmp.io/p/MultiVersion) [![Discord](https://img.shields.io/discord/902113901712379945?color=7389D8&label=discord)](https://discord.gg/NGsNaj54d6) [![Stars](https://img.shields.io/github/stars/AkmalFairuz/MultiVersion)](https://github.com/AkmalFairuz/MultiVersion/stargazers)
 A Multi Version plugin for PocketMine-MP.
 
 ## Supported Versions:
