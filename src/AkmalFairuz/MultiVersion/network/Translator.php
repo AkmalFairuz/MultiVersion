@@ -47,6 +47,7 @@ use pocketmine\network\mcpe\protocol\NpcRequestPacket;
 use pocketmine\network\mcpe\protocol\PlayerListPacket;
 use pocketmine\network\mcpe\protocol\PlayerSkinPacket;
 use pocketmine\network\mcpe\protocol\ResourcePacksInfoPacket;
+use pocketmine\network\mcpe\protocol\ResourcePackStackPacket;
 use pocketmine\network\mcpe\protocol\SetTitlePacket;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
 use pocketmine\network\mcpe\protocol\UpdateBlockPacket;
@@ -108,6 +109,10 @@ class Translator{
     public static function fromServer(DataPacket $packet, int $protocol, Player $player = null, bool &$translated = true) : ?DataPacket {
         $pid = $packet::NETWORK_ID;
         switch($pid) {
+            case ResourcePackStackPacket::NETWORK_ID:
+                /** @var ResourcePackStackPacket $packet */
+                $packet->mustAccept = true;
+                return $packet;
             case UpdateBlockPacket::NETWORK_ID:
                 /** @var UpdateBlockPacket $packet */
                 $block = RuntimeBlockMapping::fromStaticRuntimeId($packet->blockRuntimeId);

@@ -82,7 +82,7 @@ class EventListener implements Listener{
     /**
      * @param DataPacketSendEvent $event
      * @priority HIGHEST
-     * @ignoreCancelled
+     * @ignoreCancelled true
      */
     public function onDataPacketSend(DataPacketSendEvent $event) {
         if($this->cancel_send) {
@@ -99,7 +99,7 @@ class EventListener implements Listener{
         }
         if($packet instanceof BatchPacket) {
             if($packet->isEncoded){
-                if(Config::get("async_batch_decompression") && strlen($packet->buffer) >= 256000) {
+                if(Config::get("async_batch_decompression") && strlen($packet->buffer) >= 1024) {
                     $task = new DecompressTask($packet, function(BatchPacket $packet) use ($player, $protocol) {
                         $this->translateBatchPacketAndSend($packet, $player, $protocol);
                     });
@@ -120,10 +120,15 @@ class EventListener implements Listener{
             if(!$translated) {
                 return;
             }
-            $this->cancel_send = true;
+            if($newPacket === null) {
+                $event->setCancelled();
+                return;
+            }
             $batch = new BatchPacket();
             $batch->addPacket($newPacket);
+            $batch->setCompressionLevel(Server::getInstance()->networkCompressionLevel);
             $batch->encode();
+            $this->cancel_send = true;
             $player->sendDataPacket($batch);
             $this->cancel_send = false;
         }
@@ -149,7 +154,7 @@ class EventListener implements Listener{
                 $newPacket->addPacket($translated);
             }
         } catch(\UnexpectedValueException $e) {}
-        if(Config::get("async_batch_compression") && strlen($newPacket->payload) >= 256000){
+        if(Config::get("async_batch_compression") && strlen($newPacket->payload) >= 1024){
             $task = new CompressTask($newPacket, function(BatchPacket $packet) use ($player) {
                 $this->cancel_send = true;
                 $player->sendDataPacket($packet);
@@ -159,6 +164,7 @@ class EventListener implements Listener{
             return;
         }
         $this->cancel_send = true;
+        $newPacket->setCompressionLevel(Server::getInstance()->networkCompressionLevel);
         $newPacket->encode();
         $player->sendDataPacket($newPacket);
         $this->cancel_send = false;
