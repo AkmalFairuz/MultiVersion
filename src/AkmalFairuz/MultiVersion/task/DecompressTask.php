@@ -19,7 +19,8 @@ class DecompressTask extends AsyncTask{
     private $fail = false;
 
     public function __construct(BatchPacket $packet, callable $callback) {
-        $packet->get(1);
+        $packet->offset = 0;
+        $packet->getByte();
         $this->buffer = $packet->getRemaining();
         $this->storeLocal([$packet, $callback]);
     }

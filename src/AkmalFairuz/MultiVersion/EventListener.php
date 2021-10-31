@@ -26,6 +26,7 @@ use pocketmine\network\mcpe\protocol\PlayStatusPacket;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\Player;
 use pocketmine\Server;
+use pocketmine\utils\BinaryDataException;
 use function in_array;
 use function strlen;
 
@@ -100,10 +101,12 @@ class EventListener implements Listener{
         if($packet instanceof BatchPacket) {
             if($packet->isEncoded){
                 if(Config::$ASYNC_BATCH_DECOMPRESSION && strlen($packet->buffer) >= Config::$ASYNC_BATCH_THRESHOLD) {
-                    $task = new DecompressTask($packet, function(BatchPacket $packet) use ($player, $protocol) {
-                        $this->translateBatchPacketAndSend($packet, $player, $protocol);
-                    });
-                    Server::getInstance()->getAsyncPool()->submitTask($task);
+                    try{
+                        $task = new DecompressTask($packet, function(BatchPacket $packet) use ($player, $protocol){
+                            $this->translateBatchPacketAndSend($packet, $player, $protocol);
+                        });
+                        Server::getInstance()->getAsyncPool()->submitTask($task);
+                    } catch(BinaryDataException $e) {}
                     $event->setCancelled();
                     return;
                 }
