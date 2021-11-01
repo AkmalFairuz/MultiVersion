@@ -60,7 +60,7 @@ class StartGamePacketTranslator {
         ($packet->buffer .= (\pack("V", $packet->limitedWorldWidth)));
         ($packet->buffer .= (\pack("V", $packet->limitedWorldLength)));
         ($packet->buffer .= ($packet->isNewNether ? "\x01" : "\x00"));
-        if($protocol >= ProtocolConstants::PROTOCOL_1_17_20_21){
+        if($protocol >= ProtocolConstants::BEDROCK_1_17_20_21){
             $packet->putString(""); //Education URI resource -> buttonName
             $packet->putString(""); //Education URI resource -> link URI
         }
