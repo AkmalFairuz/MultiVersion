@@ -93,7 +93,7 @@ class StartGamePacketTranslator {
 
         $packet->putString($packet->multiplayerCorrelationId);
         ($packet->buffer .= ($packet->enableNewInventorySystem ? "\x01" : "\x00"));
-        if($protocol >= ProtocolConstants::BEDROCK_1_17_0){
+        if($protocol >= ProtocolConstants::BEDROCK_1_16_230_50){
             $packet->putString($packet->serverSoftwareVersion);
         }
     }
