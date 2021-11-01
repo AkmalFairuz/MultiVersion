@@ -42,7 +42,7 @@ class Serializer{
         }
         self::putSkinImage($skin->getCapeImage(), $packet);
         $packet->putString($skin->getGeometryData());
-        if($protocol >= ProtocolConstants::BEDROCK_1_17_30){
+        if($protocol >= ProtocolConstants::BEDROCK_1_17_20_23){
             $packet->putString($skin->getGeometryDataEngineVersion());
         }
         $packet->putString($skin->getAnimationData());
@@ -95,7 +95,7 @@ class Serializer{
         }
         $capeData = self::getSkinImage($packet);
         $geometryData = $packet->getString();
-        if($protocol >= ProtocolConstants::BEDROCK_1_17_30){
+        if($protocol >= ProtocolConstants::BEDROCK_1_17_20_23){
             $geometryDataVersion = $packet->getString();
         }
         $animationData = $packet->getString();
@@ -360,7 +360,7 @@ class Serializer{
         $packet->putUnsignedVarInt(count($rules));
         foreach($rules as $name => $rule){
             $packet->putString($name);
-            if($protocol >= ProtocolConstants::BEDROCK_1_17_0){
+            if($protocol >= ProtocolConstants::BEDROCK_1_17_0_50){
                 $packet->putBool($rule[2]);
             }
             $packet->putUnsignedVarInt($rule[0]);
