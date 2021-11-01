@@ -122,7 +122,7 @@ class CraftingDataPacketTranslator{
             $packet->putVarInt($recipe->getIngredientItemId());
             $packet->putVarInt($recipe->getOutputItemId());
         }
-        if($protocol >= ProtocolConstants::BEDROCK_1_17_30){
+        if($protocol >= ProtocolConstants::BEDROCK_1_17_30_20){
             $packet->putUnsignedVarInt(count($packet->materialReducerRecipes));
             foreach($packet->materialReducerRecipes as $recipe){
                 $packet->putVarInt(($recipe->getInputItemId() << 16) | $recipe->getInputItemMeta());
