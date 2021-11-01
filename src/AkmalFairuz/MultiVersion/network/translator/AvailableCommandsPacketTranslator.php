@@ -87,7 +87,7 @@ class AvailableCommandsPacketTranslator{
     private static function putCommandData(AvailableCommandsPacket $packet, CommandData $data, array $enumIndexes, array $postfixIndexes, int $protocol){
         $packet->putString($data->commandName);
         $packet->putString($data->commandDescription);
-        if($protocol >= ProtocolConstants::BEDROCK_1_17_10){
+        if($protocol >= ProtocolConstants::BEDROCK_1_17_10_20){
             $packet->putLShort($data->flags);
         } else {
             $packet->putByte($data->flags);
