@@ -22,7 +22,7 @@ class ProtocolConstants{
     public const BEDROCK_1_17_30_20 = 462;
     public const BEDROCK_1_17_30_22 = 464;
     public const BEDROCK_1_17_30 = 465;
-    /* Support Block is Weird (No Pallet)*/
+    /* Support Block is Weird (No Block States)*/
     public const BEDROCK_1_16_230_50 = 433;
     public const BEDROCK_1_16_230_52 = 434;
     public const BEDROCK_1_16_230_54 = 435;
