@@ -51,7 +51,7 @@ class MultiVersionRuntimeBlockMapping{
                 $list[] = $stream->getNbtCompoundRoot();
             }
             self::$bedrockKnownStates[$protocol] = $list;
-            
+
             self::setupLegacyMappings($protocol);
         }
     }
