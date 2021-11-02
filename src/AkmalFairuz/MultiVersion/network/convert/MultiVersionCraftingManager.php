@@ -62,7 +62,7 @@ class MultiVersionCraftingManager extends CraftingManager{
         Timings::$craftingDataCacheRebuildTimer->stopTiming();
     }
     
-    private static function convertCraftingprotocol(int $protocol) : void{
+    private static function convertCraftingprotocol(int $protocol) : int{
         switch($protocol){
                 case ProtocolConstants::BEDROCK_1_16_220_50:
                 case ProtocolConstants::BEDROCK_1_16_220_51:
