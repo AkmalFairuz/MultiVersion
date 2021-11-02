@@ -13,7 +13,7 @@ A Multi Version plugin for PocketMine-MP.
 | 1.17.40 | 471 |
 
 ### TODO Versions:
-- Future versions
+- Future versions (EZ)
 
 ## Requirements:
 - PHP: `>=7.4`
