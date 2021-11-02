@@ -58,6 +58,29 @@ class MultiVersionRuntimeBlockMapping{
             }
         }
     }
+    
+    private static function convertruntimeprotocol(int $protocol) : void{
+        switch($protocol){
+                case ProtocolConstants::BEDROCK_1_16_220_50:
+                case ProtocolConstants::BEDROCK_1_16_220_51:
+                case ProtocolConstants::BEDROCK_1_16_230_50;
+                case ProtocolConstants::BEDROCK_1_16_230_52;
+                case ProtocolConstants::BEDROCK_1_16_230_54;
+                    return ProtocolConstants::BEDROCK_1_16_220;
+                case ProtocolConstants::BEDROCK_1_17_10_20:
+                    return ProtocolConstants::BEDROCK_1_17_0;
+                case ProtocolConstants::BEDROCK_1_17_20_20:
+                case ProtocolConstants::BEDROCK_1_17_20_21:
+                case ProtocolConstants::BEDROCK_1_17_20_22:
+                    return ProtocolConstants::BEDROCK_1_17_10;
+                case ProtocolConstants::BEDROCK_1_17_20_23:
+                case ProtocolConstants::BEDROCK_1_17_30_20:
+                case ProtocolConstants::BEDROCK_1_17_30_22;
+                    return ProtocolConstants::BEDROCK_1_17_30;
+                default:
+                    return $protocol;
+        }
+    }
 
     private static function setupLegacyMappings(int $protocol) : void{
         $legacyIdMap = json_decode(file_get_contents(Loader::$resourcesPath . "vanilla/block_id_map.json"), true);
@@ -125,12 +148,13 @@ class MultiVersionRuntimeBlockMapping{
 
     public static function toStaticRuntimeId(int $id, int $meta = 0, int $protocol = ProtocolInfo::CURRENT_PROTOCOL) : int{
         self::lazyInit();
+        $protocols = self::convertruntimeprotocol($protocol) ?? $protocol;
         /*
          * try id+meta first
          * if not found, try id+0 (strip meta)
          * if still not found, return update! block
          */
-        return self::$legacyToRuntimeMap[$protocol][($id << 4) | $meta] ?? self::$legacyToRuntimeMap[$protocol][$id << 4] ?? self::$legacyToRuntimeMap[$protocol][BlockIds::INFO_UPDATE << 4];
+        return self::$legacyToRuntimeMap[$protocols][($id << 4) | $meta] ?? self::$legacyToRuntimeMap[$protocols][$id << 4] ?? self::$legacyToRuntimeMap[$protocols][BlockIds::INFO_UPDATE << 4];
     }
 
     /**
@@ -138,7 +162,8 @@ class MultiVersionRuntimeBlockMapping{
      */
     public static function fromStaticRuntimeId(int $runtimeId, int $protocol) : array{
         self::lazyInit();
-        $v = self::$runtimeToLegacyMap[$protocol][$runtimeId] ?? null;
+        $protocols = self::convertruntimeprotocol($protocol) ?? $protocol;
+        $v = self::$runtimeToLegacyMap[$protocols][$runtimeId] ?? null;
         if($v === null) {
             return [0, 0];
         }
@@ -146,8 +171,9 @@ class MultiVersionRuntimeBlockMapping{
     }
 
     private static function registerMapping(int $staticRuntimeId, int $legacyId, int $legacyMeta, $protocol) : void{
-        self::$legacyToRuntimeMap[$protocol][($legacyId << 4) | $legacyMeta] = $staticRuntimeId;
-        self::$runtimeToLegacyMap[$protocol][$staticRuntimeId] = ($legacyId << 4) | $legacyMeta;
+        $protocols = self::convertruntimeprotocol($protocol) ?? $protocol;
+        self::$legacyToRuntimeMap[$protocols][($legacyId << 4) | $legacyMeta] = $staticRuntimeId;
+        self::$runtimeToLegacyMap[$protocols][$staticRuntimeId] = ($legacyId << 4) | $legacyMeta;
     }
 
     /**
