@@ -13,7 +13,7 @@ class AnimateEntityPacketTranslator{
         $packet->putString($packet->getAnimation());
         $packet->putString($packet->getNextState());
         $packet->putString($packet->getStopExpression());
-        if($protocol >= ProtocolConstants::BEDROCK_1_17_30){
+        if($protocol >= ProtocolConstants::BEDROCK_1_17_20_21){
             $packet->putLInt($packet->getStopExpressionVersion());
         }
         $packet->putString($packet->getController());
