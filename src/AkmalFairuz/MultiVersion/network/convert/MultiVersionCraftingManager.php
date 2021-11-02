@@ -61,8 +61,31 @@ class MultiVersionCraftingManager extends CraftingManager{
         }
         Timings::$craftingDataCacheRebuildTimer->stopTiming();
     }
-
+    
+    private static function convertCraftingprotocol(int $protocol) : void{
+        switch($protocol){
+                case ProtocolConstants::BEDROCK_1_16_220_50:
+                case ProtocolConstants::BEDROCK_1_16_220_51:
+                case ProtocolConstants::BEDROCK_1_16_230_50;
+                case ProtocolConstants::BEDROCK_1_16_230_52;
+                case ProtocolConstants::BEDROCK_1_16_230_54;
+                    return ProtocolConstants::BEDROCK_1_16_220;
+                case ProtocolConstants::BEDROCK_1_17_10_20:
+                    return ProtocolConstants::BEDROCK_1_17_0;
+                case ProtocolConstants::BEDROCK_1_17_20_20:
+                case ProtocolConstants::BEDROCK_1_17_20_21:
+                case ProtocolConstants::BEDROCK_1_17_20_22:
+                    return ProtocolConstants::BEDROCK_1_17_10;
+                case ProtocolConstants::BEDROCK_1_17_20_23:
+                case ProtocolConstants::BEDROCK_1_17_30_20:
+                case ProtocolConstants::BEDROCK_1_17_30_22;
+                    return ProtocolConstants::BEDROCK_1_17_30;
+                default:
+                    return $protocol;
+        }
+    }
+    
     public function getCraftingDataPacketA(int $protocol): BatchPacket{
-        return $this->multiVersionCraftingDataCache[$protocol];
+        return $this->multiVersionCraftingDataCache[$this->convertCraftingprotocol($protocol)];
     }
 }
