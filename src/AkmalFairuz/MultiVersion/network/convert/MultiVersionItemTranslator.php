@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AkmalFairuz\MultiVersion\network\convert;
 
 use AkmalFairuz\MultiVersion\Loader;
+use AkmalFairuz\MultiVersion\network\ProtocolConstants;
 use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\SingletonTrait;
 use function array_key_exists;
@@ -118,14 +119,38 @@ class MultiVersionItemTranslator{
         }
     }
 
+    private static function convertItemprotocol(int $protocol) : int{
+        switch($protocol){
+            case ProtocolConstants::BEDROCK_1_16_220_50:
+            case ProtocolConstants::BEDROCK_1_16_220_51:
+            case ProtocolConstants::BEDROCK_1_16_230_50:
+            case ProtocolConstants::BEDROCK_1_16_230_52:
+            case ProtocolConstants::BEDROCK_1_16_230_54:
+                return ProtocolConstants::BEDROCK_1_16_220;
+            case ProtocolConstants::BEDROCK_1_17_10_20:
+                return ProtocolConstants::BEDROCK_1_17_0;
+            case ProtocolConstants::BEDROCK_1_17_20_20:
+            case ProtocolConstants::BEDROCK_1_17_20_21:
+            case ProtocolConstants::BEDROCK_1_17_20_22:
+            case ProtocolConstants::BEDROCK_1_17_20_23:
+                return ProtocolConstants::BEDROCK_1_17_10;
+            case ProtocolConstants::BEDROCK_1_17_30_20:
+            case ProtocolConstants::BEDROCK_1_17_30_22:
+                return ProtocolConstants::BEDROCK_1_17_30;
+            default:
+                return $protocol;
+        }
+    }
+
     /**
      * @return int[]
      * @phpstan-return array{int, int}
      */
-    public function toNetworkId(int $internalId, int $internalMeta, int $protocol) : array{
+    public function toNetworkId(int $internalId, int $internalMeta, int $protocolid) : array{
         if($internalMeta === -1){
             $internalMeta = 0x7fff;
         }
+        $protocol = $this->convertItemprotocol($protocolid) ?? $protocolid;
         if(isset($this->complexCoreToNetMapping[$protocol][$internalId][$internalMeta])){
             return [$this->complexCoreToNetMapping[$protocol][$internalId][$internalMeta], 0];
         }
@@ -140,7 +165,8 @@ class MultiVersionItemTranslator{
      * @return int[]
      * @phpstan-return array{int, int}
      */
-    public function fromNetworkId(int $networkId, int $networkMeta, ?bool &$isComplexMapping = null, int $protocol) : array{
+    public function fromNetworkId(int $networkId, int $networkMeta, ?bool &$isComplexMapping = null, int $protocolid) : array{
+        $protocol = $this->convertItemprotocol($protocolid) ?? $protocolid;
         if(isset($this->complexNetToCoreMapping[$protocol][$networkId])){
             if($networkMeta !== 0){
                 throw new \UnexpectedValueException("Unexpected non-zero network meta on complex item mapping");
@@ -159,7 +185,8 @@ class MultiVersionItemTranslator{
      * @return int[]
      * @phpstan-return array{int, int}
      */
-    public function fromNetworkIdWithWildcardHandling(int $networkId, int $networkMeta, int $protocol) : array{
+    public function fromNetworkIdWithWildcardHandling(int $networkId, int $networkMeta, int $protocolid) : array{
+        $protocol = $this->convertItemprotocol($protocolid) ?? $protocolid;
         $isComplexMapping = false;
         if($networkMeta !== 0x7fff){
             $null = null;
