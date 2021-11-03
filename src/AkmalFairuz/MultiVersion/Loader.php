@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AkmalFairuz\MultiVersion;
 
+use AkmalFairuz\MultiVersion\network\ProtocolConstants;
 use AkmalFairuz\MultiVersion\network\convert\MultiVersionCraftingManager;
 use AkmalFairuz\MultiVersion\network\convert\MultiVersionRuntimeBlockMapping;
 use AkmalFairuz\MultiVersion\task\CheckUpdateTask;
@@ -54,7 +55,14 @@ class Loader extends PluginBase{
     }
 
     public function isProtocolDisabled(int $protocol): bool{
-        $config = Config::$DISABLED_PROTOCOLS;
-        return in_array($protocol, $config, true);
+        $ProtocolDisabled = Config::$DISABLED_PROTOCOLS;
+        if(!Config::$BETA_PROTOCOL){
+            if(in_array($protocol, ProtocolConstants::RELEASE_PROTOCOLS, true)){
+                return in_array($protocol, $ProtocolDisabled, true);
+            }else{
+                return true;
+            }
+        }
+        return in_array($protocol, $ProtocolDisabled, true);
     }
 }
