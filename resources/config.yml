@@ -3,6 +3,7 @@ async_batch_decompression: true
 async_batch_compress: true
 async_batch_threshold: 1024
 
+beta_protocol: false
 # example=
 #   disabled_protocols: [448, 440]
 disabled_protocols: []
