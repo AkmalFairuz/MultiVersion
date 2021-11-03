@@ -47,4 +47,12 @@ class ProtocolConstants{
         self::BEDROCK_1_17_30,
         ProtocolInfo::CURRENT_PROTOCOL
     ];
+
+    public const RELEASE_PROTOCOLS = [
+        self::BEDROCK_1_16_220,
+        self::BEDROCK_1_17_0,
+        self::BEDROCK_1_17_10,
+        self::BEDROCK_1_17_30,
+        ProtocolInfo::CURRENT_PROTOCOL
+    ];
 }
