@@ -12,6 +12,7 @@ class Config{
     public static $ASYNC_BATCH_DECOMPRESSION;
     public static $ASYNC_BATCH_THRESHOLD;
     public static $DISABLED_PROTOCOLS;
+    public static $BETA_PROTOCOL;
 
     public static function init(string $path) {
         $cfg = yaml_parse_file($path);
@@ -19,5 +20,6 @@ class Config{
         self::$ASYNC_BATCH_DECOMPRESSION = $cfg["async_batch_decompression"] ?? true;
         self::$ASYNC_BATCH_THRESHOLD = $cfg["async_batch_threshold"] ?? 1024;
         self::$DISABLED_PROTOCOLS = $cfg["disabled_protocols"] ?? [];
+        self::$BETA_PROTOCOL = $cfg["beta_protocol"] ?? false;
     }
 }
