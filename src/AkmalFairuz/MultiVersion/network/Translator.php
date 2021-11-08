@@ -110,7 +110,8 @@ class Translator{
         $pid = $packet::NETWORK_ID;
         switch($pid) {
             case ResourcePackStackPacket::NETWORK_ID:
-                /** @var ResourcePackStackPacket $packet */
+            case ResourcePacksInfoPacket::NETWORK_ID:
+                /** @var ResourcePackStackPacket|ResourcePacksInfoPacket $packet */
                 $packet->mustAccept = true;
                 return $packet;
             case UpdateBlockPacket::NETWORK_ID:

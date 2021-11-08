@@ -5,3 +5,6 @@ version: 0.471.3
 description: A plugin to allows older Minecraft client versions to connect to newer server versions.
 mcpe-protocol: 471
 author: AkmalFairuz
+permissions:
+  multiversion.command:
+    default: op

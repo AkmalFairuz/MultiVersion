@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AkmalFairuz\MultiVersion;
 
+use AkmalFairuz\MultiVersion\command\MultiVersionCommand;
 use AkmalFairuz\MultiVersion\network\convert\MultiVersionCraftingManager;
 use AkmalFairuz\MultiVersion\network\convert\MultiVersionRuntimeBlockMapping;
 use AkmalFairuz\MultiVersion\task\CheckUpdateTask;
@@ -48,6 +49,7 @@ class Loader extends PluginBase{
             $this->canJoin = true;
         }), 1);
 
+        $this->getServer()->getCommandMap()->register("multiversion", new MultiVersionCommand("multiversion", $this));
         $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
 
         CheckUpdateTask::init($this->getDescription()->getVersion());

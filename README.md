@@ -20,4 +20,12 @@ A Multi Version plugin for PocketMine-MP.
 - PocketMine-MP: `3.25.0`
 
 ## Sources:
+- PMMP protocol changes commit
 - <a href="https://github.com/pmmp/BedrockProtocol">BedrockProtocol</a>
+
+## API:
+- Get player protocol:
+```php
+/** @var Player $player */
+MultiVersion::getProtocol($player);
+```
