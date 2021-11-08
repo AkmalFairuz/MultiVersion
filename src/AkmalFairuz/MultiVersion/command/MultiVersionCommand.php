@@ -47,17 +47,12 @@ class MultiVersionCommand extends PluginCommand{
                 $sender->sendMessage(self::PREFIX . $target->getName() . " is using version " . $ver . " (Protocol: " . $protocol . " )");
                 return;
             case "all":
-                $msg = [];
                 foreach(Server::getInstance()->getOnlinePlayers() as $player) {
                     $protocol = MultiVersion::getProtocol($player);
                     $ver = ProtocolConstants::MINECRAFT_VERSION[$protocol];
-                    $msg[] = $player->getName() . " [Protocol: " . $protocol . ", Version: " . $ver . "]";
+                    $msg = $player->getName() . " [Protocol: " . $protocol . ", Version: " . $ver . "]";
+                    $sender->sendMessage(self::PREFIX . $msg . "\n");
                 }
-                $m = "";
-                foreach($msg as $c) {
-                    $m .= self::PREFIX . $c . "\n";
-                }
-                $sender->sendMessage(substr($m, 0, strlen($m) - 1));
                 return;
             default:
                 $sender->sendMessage(self::PREFIX . " Usage: /multiversion <player|all>");
