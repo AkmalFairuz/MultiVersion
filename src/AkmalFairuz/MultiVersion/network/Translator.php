@@ -111,12 +111,7 @@ class Translator{
         switch($pid) {
             case ResourcePackStackPacket::NETWORK_ID:
                 /** @var ResourcePackStackPacket $packet */
-                $packet->mustAccept = true;
                 $packet->baseGameVersion = "1.16.220";
-                return $packet;
-            case ResourcePacksInfoPacket::NETWORK_ID:
-                /** @var ResourcePacksInfoPacket $packet */
-                $packet->mustAccept = true;
                 return $packet;
             case UpdateBlockPacket::NETWORK_ID:
                 /** @var UpdateBlockPacket $packet */
