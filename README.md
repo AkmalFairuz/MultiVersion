@@ -12,8 +12,11 @@ A Multi Version plugin for PocketMine-MP.
 | 1.17.30 | 465 |
 | 1.17.40 | 471 |
 
-### TODO Versions:
-- Future versions
+## Command:
+| Command | Help |
+| --- | ---- |
+| /multiversion player `<player>` | Get player version |
+| /multiversion all | Get all players version |
 
 ## Requirements:
 - PHP: `>=7.4`
