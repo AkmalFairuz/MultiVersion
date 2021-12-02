@@ -8,7 +8,6 @@ use AkmalFairuz\MultiVersion\Loader;
 use pocketmine\scheduler\AsyncTask;
 use pocketmine\Server;
 use pocketmine\utils\Internet;
-use pocketmine\utils\InternetException;
 use pocketmine\utils\TextFormat;
 use function date;
 use function json_decode;
@@ -51,7 +50,7 @@ class CheckUpdateTask extends AsyncTask{
             } else{
                 $this->setResult([$ver, $api, $downloadUrl, $date]);
             }
-        } catch(InternetException $exception) {
+        } catch(\Throwable $exception) {
             $this->setResult(null);
         }
     }

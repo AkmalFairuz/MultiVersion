@@ -69,7 +69,7 @@ class MultiVersionRuntimeBlockMapping{
                 break;
             case ProtocolConstants::BEDROCK_1_17_40:
             case ProtocolConstants::BEDROCK_1_17_30:
-                $suffix = self::PROTOCOL[ProtocolConstants::BEDROCK_1_17_40];
+                $suffix = self::PROTOCOL[ProtocolConstants::BEDROCK_1_17_30];
                 break;
             default:
                 $suffix = self::PROTOCOL[$protocol];
