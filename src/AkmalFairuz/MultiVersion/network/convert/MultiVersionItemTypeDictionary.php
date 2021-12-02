@@ -38,7 +38,8 @@ class MultiVersionItemTypeDictionary{
         ProtocolConstants::BEDROCK_1_16_220 => "_1_16_220",
         ProtocolConstants::BEDROCK_1_17_0 => "_1_17_0",
         ProtocolConstants::BEDROCK_1_17_10 => "_1_17_10",
-        ProtocolConstants::BEDROCK_1_17_30 => "_1_17_30"
+        ProtocolConstants::BEDROCK_1_17_30 => "_1_17_30",
+        ProtocolConstants::BEDROCK_1_17_40 => "_1_17_40"
     ];
 
     private static function make() : self{

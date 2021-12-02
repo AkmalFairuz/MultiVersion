@@ -29,7 +29,8 @@ class MultiVersionRuntimeBlockMapping{
         ProtocolConstants::BEDROCK_1_16_220 => "_1_16_220",
         ProtocolConstants::BEDROCK_1_17_0 => "_1_17_0",
         ProtocolConstants::BEDROCK_1_17_10 => "_1_17_10",
-        ProtocolConstants::BEDROCK_1_17_30 => "_1_17_30"
+        ProtocolConstants::BEDROCK_1_17_30 => "_1_17_30",
+        ProtocolConstants::BEDROCK_1_17_40 => "_1_17_40"
     ];
 
     private function __construct(){
@@ -61,10 +62,18 @@ class MultiVersionRuntimeBlockMapping{
 
         /** @var R12ToCurrentBlockMapEntry[] $legacyStateMap */
         $legacyStateMap = [];
-        if($protocol === ProtocolConstants::BEDROCK_1_17_0) {
-            $suffix = self::PROTOCOL[ProtocolConstants::BEDROCK_1_17_10];
-        } else {
-            $suffix = self::PROTOCOL[$protocol];
+        switch($protocol) {
+            case ProtocolConstants::BEDROCK_1_17_0:
+            case ProtocolConstants::BEDROCK_1_17_10:
+                $suffix = self::PROTOCOL[ProtocolConstants::BEDROCK_1_17_10];
+                break;
+            case ProtocolConstants::BEDROCK_1_17_40:
+            case ProtocolConstants::BEDROCK_1_17_30:
+                $suffix = self::PROTOCOL[ProtocolConstants::BEDROCK_1_17_40];
+                break;
+            default:
+                $suffix = self::PROTOCOL[$protocol];
+                break;
         }
         $path = Loader::$resourcesPath . "vanilla/r12_to_current_block_map".$suffix.".bin";
         $legacyStateMapReader = new NetworkBinaryStream(file_get_contents($path));
