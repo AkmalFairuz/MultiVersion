@@ -11,6 +11,7 @@ A Multi Version plugin for PocketMine-MP.
 | 1.17.10 | 448 |
 | 1.17.30 | 465 |
 | 1.17.40 | 471 |
+| 1.18.0 | 475 |
 
 ## Command:
 | Command | Help |
@@ -20,7 +21,7 @@ A Multi Version plugin for PocketMine-MP.
 
 ## Requirements:
 - PHP: `>=7.4`
-- PocketMine-MP: `3.25.0`
+- PocketMine-MP: `3.26.1`
 
 ## Sources:
 - PMMP protocol changes commit

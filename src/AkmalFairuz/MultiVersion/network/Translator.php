@@ -38,6 +38,7 @@ use pocketmine\network\mcpe\protocol\GameRulesChangedPacket;
 use pocketmine\network\mcpe\protocol\InventoryContentPacket;
 use pocketmine\network\mcpe\protocol\InventorySlotPacket;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
+use pocketmine\network\mcpe\protocol\LevelChunkPacket;
 use pocketmine\network\mcpe\protocol\LevelEventPacket;
 use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\network\mcpe\protocol\LoginPacket;
@@ -52,6 +53,7 @@ use pocketmine\network\mcpe\protocol\SetTitlePacket;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
 use pocketmine\network\mcpe\protocol\UpdateBlockPacket;
 use pocketmine\Player;
+use function substr;
 
 class Translator{
 
@@ -155,6 +157,14 @@ class Translator{
                         $face = $packet->data & ~$block->getRuntimeId();
                         $packet->data = MultiVersionRuntimeBlockMapping::toStaticRuntimeId($block->getId(), $block->getDamage(), $protocol) | $face;
                         return $packet;
+                }
+                return $packet;
+            case LevelChunkPacket::NETWORK_ID:
+                /** @var LevelChunkPacket $packet */
+                if($protocol <= ProtocolConstants::BEDROCK_1_17_40) {
+                    if($player->getLevel() !== null){
+                        return Chunk112::serialize($player->getLevel(), $packet);
+                    }
                 }
                 return $packet;
             case AnimateEntityPacket::NETWORK_ID:
