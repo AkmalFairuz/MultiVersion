@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AkmalFairuz\MultiVersion\network\convert;
 
 use AkmalFairuz\MultiVersion\Loader;
+use pocketmine\network\mcpe\convert\ItemTranslator;
 use pocketmine\utils\AssumptionFailedError;
 use pocketmine\utils\SingletonTrait;
 use function array_key_exists;
@@ -133,7 +134,7 @@ class MultiVersionItemTranslator{
             return [$this->simpleCoreToNetMapping[$protocol][$internalId], $internalMeta];
         }
 
-        throw new \InvalidArgumentException("Unmapped ID/metadata combination $internalId:$internalMeta");
+        return ItemTranslator::getInstance()->toNetworkId($internalId, $internalMeta); // custom item check
     }
 
     /**
@@ -152,7 +153,7 @@ class MultiVersionItemTranslator{
         if(isset($this->simpleNetToCoreMapping[$protocol][$networkId])){
             return [$this->simpleNetToCoreMapping[$protocol][$networkId], $networkMeta];
         }
-        throw new \UnexpectedValueException("Unmapped network ID/metadata combination $networkId:$networkMeta");
+        return ItemTranslator::getInstance()->fromNetworkId($networkId, $networkMeta, $isComplexMapping); // custom item check
     }
 
     /**
