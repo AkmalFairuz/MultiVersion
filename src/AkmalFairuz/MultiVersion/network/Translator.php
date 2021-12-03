@@ -164,6 +164,7 @@ class Translator{
                     if($player->getLevel() !== null){
                         return Chunk112::serialize($player->getLevel(), $packet);
                     }
+                    return null;
                 }
                 return $packet;
             case AnimateEntityPacket::NETWORK_ID:
