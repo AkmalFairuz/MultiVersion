@@ -35,7 +35,7 @@ class Chunk112{
         for($y = 0; $y < $subChunkCount; ++$y){
             $result .= $chunk->getSubChunk($y)->networkSerialize();
         }
-        $result .= Utils::forceGetProps($chunk, $chunk->getBiomeIdArray()) . chr(0); //border block array count
+        $result .= $chunk->getBiomeIdArray() . chr(0); //border block array count
         //Border block entry format: 1 byte (4 bits X, 4 bits Z). These are however useless since they crash the regular client.
 
         foreach($chunk->getTiles() as $tile){
