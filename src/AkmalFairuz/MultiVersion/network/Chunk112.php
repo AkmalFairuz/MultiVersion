@@ -20,9 +20,9 @@ class Chunk112{
         if($chunk !== null){
             $payload = self::networkSerialize($chunk);
             if($origin->isCacheEnabled()){
-                $packet = LevelChunkPacket::withCache($x, $z, $origin->getSubChunkCount() + 1, $origin->getUsedBlobHashes(), $payload);
+                $packet = LevelChunkPacket::withCache($x, $z, $origin->getSubChunkCount() - 4, $origin->getUsedBlobHashes(), $payload);
             } else {
-                $packet = LevelChunkPacket::withoutCache($x, $z, $origin->getSubChunkCount() + 1, $payload);
+                $packet = LevelChunkPacket::withoutCache($x, $z, $origin->getSubChunkCount() - 4, $payload);
             }
             return $packet;
         }
