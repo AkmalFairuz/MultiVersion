@@ -6,9 +6,10 @@ namespace AkmalFairuz\MultiVersion;
 
 use AkmalFairuz\MultiVersion\session\SessionManager;
 use pocketmine\network\mcpe\protocol\ProtocolInfo;
-use pocketmine\Player;
+use pocketmine\player\Player;
 
-class MultiVersion{
+class MultiVersion
+{
 
     public static function getProtocol(Player $player): int{
         return SessionManager::getProtocol($player) ?? ProtocolInfo::CURRENT_PROTOCOL;
