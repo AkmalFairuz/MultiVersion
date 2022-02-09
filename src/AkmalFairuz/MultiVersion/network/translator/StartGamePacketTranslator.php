@@ -96,5 +96,8 @@ class StartGamePacketTranslator {
         if($protocol >= ProtocolConstants::BEDROCK_1_17_0){
             $packet->putString($packet->serverSoftwareVersion);
         }
+        if($protocol >= ProtocolConstants::BEDROCK_1_18_0){
+            $packet->putLLong(0);
+        }
     }
 }
