@@ -134,6 +134,9 @@ class MultiVersionRuntimeBlockMapping{
     }
 
     public static function toStaticRuntimeId(int $id, int $meta = 0, int $protocol = ProtocolInfo::CURRENT_PROTOCOL) : int{
+        if($protocol === ProtocolConstants::BEDROCK_1_18_0) {
+            $protocol = ProtocolConstants::BEDROCK_1_17_40;
+        }
         self::lazyInit();
         /*
          * try id+meta first
@@ -147,6 +150,9 @@ class MultiVersionRuntimeBlockMapping{
      * @return int[] [id, meta]
      */
     public static function fromStaticRuntimeId(int $runtimeId, int $protocol) : array{
+        if($protocol === ProtocolConstants::BEDROCK_1_18_0) {
+            $protocol = ProtocolConstants::BEDROCK_1_17_40;
+        }
         self::lazyInit();
         $v = self::$runtimeToLegacyMap[$protocol][$runtimeId] ?? null;
         if($v === null) {

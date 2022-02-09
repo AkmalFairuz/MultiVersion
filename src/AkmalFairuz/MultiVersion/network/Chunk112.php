@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace AkmalFairuz\MultiVersion\network;
 
-use AkmalFairuz\MultiVersion\utils\Utils;
 use pocketmine\level\format\Chunk;
 use pocketmine\level\Level;
 use pocketmine\network\mcpe\protocol\LevelChunkPacket;
@@ -19,12 +18,7 @@ class Chunk112{
         $chunk = $level->getChunk($x, $z);
         if($chunk !== null){
             $payload = self::networkSerialize($chunk);
-            if($origin->isCacheEnabled()){
-                $packet = LevelChunkPacket::withCache($x, $z, $origin->getSubChunkCount() - 4, $origin->getUsedBlobHashes(), $payload);
-            } else {
-                $packet = LevelChunkPacket::withoutCache($x, $z, $origin->getSubChunkCount() - 4, $payload);
-            }
-            return $packet;
+            return LevelChunkPacket::create($x, $z, $origin->getSubChunkCount() - 4, false, $origin->getUsedBlobHashes(),  $payload);
         }
         return null;
     }
