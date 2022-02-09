@@ -56,7 +56,7 @@ class StartGamePacketTranslator {
         ($packet->buffer .= ($packet->isFromWorldTemplate ? "\x01" : "\x00"));
         ($packet->buffer .= ($packet->isWorldTemplateOptionLocked ? "\x01" : "\x00"));
         ($packet->buffer .= ($packet->onlySpawnV1Villagers ? "\x01" : "\x00"));
-        $packet->putString("*");
+        $packet->putString("1.16.220");
         ($packet->buffer .= (\pack("V", $packet->limitedWorldWidth)));
         ($packet->buffer .= (\pack("V", $packet->limitedWorldLength)));
         ($packet->buffer .= ($packet->isNewNether ? "\x01" : "\x00"));
